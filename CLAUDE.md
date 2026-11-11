@@ -268,14 +268,14 @@ Las Fases 2 a 6 de `FASES.md` se ejecutan en orden, una detrás de otra, con est
 | Fase | Estado | Notas |
 |---|---|---|
 | 1 · Base, auth, diseño, despliegue | ✅ Completada | |
-| 2 · Gym + Nutrición + importar Excel | ✅ Completada | Importación real pendiente: requiere `SUPABASE_SERVICE_ROLE_KEY` e `IMPORT_USER_ID` en `.env.local` (solo local) |
+| 2 · Gym + Nutrición + importar Excel | ✅ Completada | Excel importado (44 alimentos, 2 recetas, 18 comidas) |
 | 3 · Agenda (iCloud CalDAV + Uni) | ⏳ Pendiente | Requiere `APPLE_ID`, `APPLE_APP_PASSWORD`, `CRON_SECRET` |
 | 4 · Personal | ⏳ Pendiente | |
 | 5 · Inglés | ⏳ Pendiente | Requiere las preguntas de la sección 7 y `GEMINI_API_KEY` |
 | 6 · Hoy, pulido y backups | ⏳ Pendiente | Requiere el token del repo `gerard-os-data` |
 
 **Pendientes / problemas conocidos:**
-- Ejecutar `npm run import:nutrition` (sin `--dry-run`) cuando Gerard añada las variables a `.env.local`.
+- Revisar a mano en la app: "Empanadilla casera" (sin macros), receta "Carne picada con patatas" (sin ingredientes) y "Yogur fresa proteina" del menú (sin cantidad).
 - La hora de corte del día (04:00) aún no se aplica; "hoy" = fecha de Madrid. Se hace en la Fase 6.
 - Interfaz de Gym/Nutrición sin revisar visualmente en dispositivo.
 - `npm audit`: 17 vulnerabilidades en dependencias de terceros, sin revisar.
