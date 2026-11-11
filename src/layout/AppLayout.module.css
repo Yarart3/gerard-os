@@ -1,0 +1,16 @@
+.shell {
+  min-height: 100dvh;
+}
+.main {
+  padding: var(--safe-top) var(--gutter) calc(var(--tabbar-h) + var(--safe-bottom) + 24px);
+}
+.content {
+  max-width: var(--content-max);
+  margin: 0 auto;
+}
+@media (min-width: 900px) {
+  .main {
+    margin-left: var(--sidebar-w);
+    padding: 24px 32px 48px;
+  }
+}

@@ -1,0 +1,38 @@
+.bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  padding-bottom: var(--safe-bottom);
+  background: var(--tab);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-top: 0.5px solid var(--line);
+}
+.tab {
+  flex: 1;
+  height: var(--tabbar-h);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+}
+.active {
+  color: var(--accent);
+}
+@media (min-width: 900px) {
+  .bar {
+    display: none;
+  }
+}
+/* Vista previa en /dev/ui: visible siempre y sin posición fija */
+.bar.preview {
+  position: static;
+  display: flex;
+}

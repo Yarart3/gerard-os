@@ -1,0 +1,24 @@
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: var(--fill);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.default {
+  color: var(--text);
+}
+.accent {
+  color: var(--accent);
+}
+.orange {
+  color: var(--orange);
+}
+.green {
+  color: var(--green);
+}

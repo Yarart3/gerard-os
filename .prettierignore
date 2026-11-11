@@ -1,0 +1,6 @@
+dist
+dev-dist
+src/lib/database.types.ts
+supabase/.temp
+node_modules
+*.md

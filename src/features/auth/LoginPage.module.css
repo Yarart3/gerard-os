@@ -1,0 +1,44 @@
+.wrap {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: var(--gutter);
+}
+.box {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.logo {
+  border-radius: 14px;
+}
+.title {
+  margin: 16px 0 4px;
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.lead {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-size: 15px;
+}
+.form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.code {
+  text-align: center;
+  letter-spacing: 0.3em;
+  font-size: 20px;
+}
+.error {
+  margin: 16px 0 0;
+  color: var(--danger);
+  font-size: 15px;
+}

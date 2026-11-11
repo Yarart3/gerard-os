@@ -1,0 +1,92 @@
+/* Tokens del sistema de diseño (CLAUDE.md §4).
+   Tema: <html data-theme="light|dark">; sin atributo = automático (prefers-color-scheme). */
+:root {
+  color-scheme: light;
+  --bg: #f2f2f7;
+  --card: #ffffff;
+  --text: #1c1c1e;
+  --muted: #6e6e73;
+  --line: #e5e5ea;
+  --accent: #0071e3;
+  --accentbg: #0071e3;
+  --fill: #eeeef2;
+  --orange: #f56300;
+  --green: #248a3d;
+  --tab: rgba(249, 249, 251, 0.92);
+  --danger: #d70015;
+  --scrim: rgba(0, 0, 0, 0.32);
+  --shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+
+  --font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', Inter, system-ui, sans-serif;
+  --radius-card: 18px;
+  --radius-input: 12px;
+  --radius-button: 14px;
+  --pad-card: 16px;
+  --gutter: 16px;
+  --gap: 16px;
+  --input-h: 44px;
+  --button-h: 50px;
+  --tabbar-h: 56px;
+  --sidebar-w: 240px;
+  --content-max: 1100px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --bg: #000000;
+    --card: #1c1c1e;
+    --text: #f5f5f7;
+    --muted: #98989d;
+    --line: #38383a;
+    --accent: #0a84ff;
+    --accentbg: #0a6cdb;
+    --fill: #2c2c2e;
+    --orange: #ff9f0a;
+    --green: #30d158;
+    --tab: rgba(22, 22, 24, 0.92);
+    --danger: #ff453a;
+    --scrim: rgba(0, 0, 0, 0.55);
+    --shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  }
+}
+
+:root[data-theme='dark'],
+[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #000000;
+  --card: #1c1c1e;
+  --text: #f5f5f7;
+  --muted: #98989d;
+  --line: #38383a;
+  --accent: #0a84ff;
+  --accentbg: #0a6cdb;
+  --fill: #2c2c2e;
+  --orange: #ff9f0a;
+  --green: #30d158;
+  --tab: rgba(22, 22, 24, 0.92);
+  --danger: #ff453a;
+  --scrim: rgba(0, 0, 0, 0.55);
+  --shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* Permite forzar claro dentro de un bloque (galería /dev/ui) */
+[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f2f2f7;
+  --card: #ffffff;
+  --text: #1c1c1e;
+  --muted: #6e6e73;
+  --line: #e5e5ea;
+  --accent: #0071e3;
+  --accentbg: #0071e3;
+  --fill: #eeeef2;
+  --orange: #f56300;
+  --green: #248a3d;
+  --tab: rgba(249, 249, 251, 0.92);
+  --danger: #d70015;
+  --scrim: rgba(0, 0, 0, 0.32);
+  --shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
+}
