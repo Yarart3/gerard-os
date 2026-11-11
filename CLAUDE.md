@@ -268,10 +268,16 @@ Las Fases 2 a 6 de `FASES.md` se ejecutan en orden, una detrás de otra, con est
 | Fase | Estado | Notas |
 |---|---|---|
 | 1 · Base, auth, diseño, despliegue | ✅ Completada | |
-| 2 · Gym + Nutrición + importar Excel | ⏳ Pendiente | |
+| 2 · Gym + Nutrición + importar Excel | ✅ Completada | Importación real pendiente: requiere `SUPABASE_SERVICE_ROLE_KEY` e `IMPORT_USER_ID` en `.env.local` (solo local) |
 | 3 · Agenda (iCloud CalDAV + Uni) | ⏳ Pendiente | Requiere `APPLE_ID`, `APPLE_APP_PASSWORD`, `CRON_SECRET` |
 | 4 · Personal | ⏳ Pendiente | |
 | 5 · Inglés | ⏳ Pendiente | Requiere las preguntas de la sección 7 y `GEMINI_API_KEY` |
 | 6 · Hoy, pulido y backups | ⏳ Pendiente | Requiere el token del repo `gerard-os-data` |
 
-**Pendientes / problemas conocidos:** ninguno.
+**Pendientes / problemas conocidos:**
+- Ejecutar `npm run import:nutrition` (sin `--dry-run`) cuando Gerard añada las variables a `.env.local`.
+- La hora de corte del día (04:00) aún no se aplica; "hoy" = fecha de Madrid. Se hace en la Fase 6.
+- Interfaz de Gym/Nutrición sin revisar visualmente en dispositivo.
+- `npm audit`: 17 vulnerabilidades en dependencias de terceros, sin revisar.
+
+**Decisiones de la Fase 2:** el peso corporal de Ajustes de Gym es el mismo del perfil; los 4 tipos de ejercicio son fijos (solo se editan los grupos musculares); el MET de la sesión es la media de sus ejercicios; volumen, PRs y gráficas cuentan solo series marcadas como hechas; las recetas se apuntan en gramos de receta.
