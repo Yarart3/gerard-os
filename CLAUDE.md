@@ -1,4 +1,4 @@
-# Hub personal de Gerard — especificación del proyecto
+# gerard-os — especificación del proyecto
 
 > Este archivo es la memoria permanente del proyecto. Léelo entero al empezar cada sesión.
 > Fuente de verdad del diseño: la maqueta "Hub personal — maqueta minimal" (los tokens están copiados abajo).
@@ -227,7 +227,7 @@ Todas las tablas llevan `id uuid pk default gen_random_uuid()`, `user_id uuid no
 - **GitHub Actions:**
   - `deploy.yml`: build, test y despliegue a Pages.
   - `keepalive.yml`: cada 3 días, una consulta ligera a Supabase para que el proyecto gratuito no se pause.
-  - `backup.yml`: semanal; exporta todas las tablas a JSON y hace commit en el repo **privado** `hub-data` (con un token fine-grained guardado en Actions secrets).
+  - `backup.yml`: semanal; exporta todas las tablas a JSON y hace commit en el repo **privado** `gerard-os-data` (con un token fine-grained guardado en Actions secrets).
 
 ## 11. Importación del Excel `Tracker GYM.xlsx` (nutrición)
 El archivo va en `data-import/` (ignorado por git). Script `scripts/import-nutrition.ts`, idempotente:
@@ -244,3 +244,34 @@ El archivo va en `data-import/` (ignorado por git). Script `scripts/import-nutri
 - Si algo del plan gratuito (Supabase, Gemini o GitHub) bloquea una funcionalidad, para y avisa con alternativas; no lo cambies a escondidas.
 - Mantén este `CLAUDE.md` al día cuando cambie una decisión.
 - Commits y PRs SIN ninguna atribución: nada de "Co-Authored-By: Claude", "Generated with Claude Code" ni enlaces de sesión. El único autor es Gerard.
+
+## 13. Protocolo de fases
+Las Fases 2 a 6 de `FASES.md` se ejecutan en orden, una detrás de otra, con este protocolo:
+
+**Al empezar cada fase**
+- Lee la sección 14 (Estado) para saber qué fase toca.
+- Enseña a Gerard un plan breve (5–10 líneas) y empieza.
+- Implementa la fase con un **subagente (Task)** para que trabaje con un contexto limpio. La sesión principal coordina, revisa el resultado y hace las preguntas.
+- Si la fase necesita algo que solo puede hacer Gerard (`supabase secrets set`, tokens, credenciales, ajustes en un panel web): **para**, dale el comando o los pasos exactos y espera a que confirme. Nunca pidas que pegue credenciales en el chat.
+
+**Al acabar cada fase**
+1. `npm run build` y tests sin errores.
+2. Commit (sin ninguna atribución a Claude, ver sección 12).
+3. Actualiza este `CLAUDE.md` si cambió alguna decisión, y actualiza la sección 14 (Estado).
+4. Resumen corto: qué se ha hecho, cómo probarlo en el iPhone y problemas pendientes.
+5. Pregunta: **"¿Paso a la Fase N?"** con las opciones **Sí / Antes quiero cambios / Parar aquí**.
+6. **No empieces la siguiente fase sin respuesta.** Si pide cambios: hazlos, vuelve al punto 1 y pregunta de nuevo. Si dice "Parar aquí": deja la sección 14 al día y termina.
+
+**Al retomar** (sesión nueva o después de reiniciar): lee la sección 14, ejecuta `git status`, deja el proyecto consistente si hay cambios a medias y continúa con el protocolo desde la fase pendiente.
+
+## 14. Estado
+| Fase | Estado | Notas |
+|---|---|---|
+| 1 · Base, auth, diseño, despliegue | ✅ Completada | |
+| 2 · Gym + Nutrición + importar Excel | ⏳ Pendiente | |
+| 3 · Agenda (iCloud CalDAV + Uni) | ⏳ Pendiente | Requiere `APPLE_ID`, `APPLE_APP_PASSWORD`, `CRON_SECRET` |
+| 4 · Personal | ⏳ Pendiente | |
+| 5 · Inglés | ⏳ Pendiente | Requiere las preguntas de la sección 7 y `GEMINI_API_KEY` |
+| 6 · Hoy, pulido y backups | ⏳ Pendiente | Requiere el token del repo `gerard-os-data` |
+
+**Pendientes / problemas conocidos:** ninguno.
