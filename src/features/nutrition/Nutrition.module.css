@@ -1,0 +1,122 @@
+.dateNav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.dateLabel {
+  font-size: 17px;
+  font-weight: 600;
+  text-align: center;
+  flex: 1;
+  text-transform: capitalize;
+}
+.today {
+  font-size: 13px;
+  font-weight: 600;
+}
+.macroGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 16px;
+  margin-top: 12px;
+}
+.macro {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.macroHead {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 600;
+}
+.macroHead span:last-child {
+  color: var(--muted);
+  font-weight: 500;
+}
+.kcalHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.kcalBig {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.slotKcal {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--muted);
+}
+.addBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  padding: 0 4px;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font-size: 15px;
+  font-weight: 600;
+}
+.tableWrap {
+  overflow-x: auto;
+  margin: 0 calc(-1 * var(--pad-card));
+  padding: 0 var(--pad-card);
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.table th,
+.table td {
+  padding: 8px 4px;
+  text-align: right;
+  white-space: nowrap;
+  border-bottom: 0.5px solid var(--line);
+}
+.table th:first-child,
+.table td:first-child {
+  text-align: left;
+}
+.table th {
+  color: var(--muted);
+  font-weight: 600;
+}
+.table tfoot td {
+  font-weight: 700;
+  border-bottom: 0;
+}
+.isToday td {
+  color: var(--accent);
+  font-weight: 600;
+}
+.ingredient {
+  display: grid;
+  grid-template-columns: 1fr 88px 44px;
+  gap: 8px;
+  align-items: center;
+}
+.ingredient + .ingredient {
+  margin-top: 8px;
+}
+.totals {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 4px;
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+}
+.totals strong {
+  display: block;
+  font-size: 16px;
+  color: var(--text);
+}

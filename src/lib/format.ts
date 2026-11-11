@@ -35,3 +35,22 @@ export function parseDecimal(input: string): number | null {
   const n = Number(clean)
   return Number.isFinite(n) ? n : null
 }
+
+export const formatGrams = (v: number) => `${formatNumber(v, 0)} g`
+
+/** Segundos → "m:ss" (o "h:mm:ss"). */
+export function formatDuration(totalSeconds: number): string {
+  const s = Math.max(0, Math.round(totalSeconds))
+  const h = Math.floor(s / 3600)
+  const m = Math.floor((s % 3600) / 60)
+  const sec = String(s % 60).padStart(2, '0')
+  return h ? `${h}:${String(m).padStart(2, '0')}:${sec}` : `${m}:${sec}`
+}
+
+/** "1:30", "90" (segundos) o "1:02:03" → segundos; null si no es válido. */
+export function parseDuration(input: string): number | null {
+  const clean = input.trim()
+  if (!clean) return null
+  if (!/^\d+(:\d{1,2}){0,2}$/.test(clean)) return null
+  return clean.split(':').reduce((acc, part) => acc * 60 + Number(part), 0)
+}

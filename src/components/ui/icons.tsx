@@ -89,3 +89,51 @@ export const Download = (p: IconProps) => (
     <path d="M12 4v11M7 10.5l5 5 5-5M5 20h14" />
   </Svg>
 )
+export const ChevronLeft = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="m15 5-7 7 7 7" />
+  </Svg>
+)
+export const ArrowUp = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M12 19V5M6 11l6-6 6 6" />
+  </Svg>
+)
+export const ArrowDown = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M12 5v14M6 13l6 6 6-6" />
+  </Svg>
+)
+export const Trash = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l1 12.5h9l1-12.5M10 11v5M14 11v5" />
+  </Svg>
+)
+export const Minus = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M5 12h14" />
+  </Svg>
+)
+export const Repeat = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M17 3.5 20 6.5l-3 3M4 11.5V10a3.5 3.5 0 0 1 3.5-3.5H20M7 20.5 4 17.5l3-3M20 12.5V14a3.5 3.5 0 0 1-3.5 3.5H4" />
+  </Svg>
+)
+export const Clipboard = (p: IconProps) => (
+  <Svg {...p}>
+    <rect x="5" y="4.5" width="14" height="16" rx="2.5" />
+    <path d="M9 4.5V3.5h6v1M9 10h6M9 14h6" />
+  </Svg>
+)
+export const Search = (p: IconProps) => (
+  <Svg {...p}>
+    <circle cx="11" cy="11" r="6.5" />
+    <path d="m16 16 4 4" />
+  </Svg>
+)
+export const Timer = (p: IconProps) => (
+  <Svg {...p}>
+    <circle cx="12" cy="13.5" r="7" />
+    <path d="M12 9.5v4l2.5 2M9.5 3h5" />
+  </Svg>
+)

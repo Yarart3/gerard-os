@@ -29,3 +29,14 @@ describe('parseDecimal', () => {
     expect(parseDecimal('abc')).toBeNull()
   })
 })
+
+describe('duración', () => {
+  it('formatea y parsea m:ss', async () => {
+    const { formatDuration, parseDuration } = await import('./format')
+    expect(formatDuration(90)).toBe('1:30')
+    expect(formatDuration(3723)).toBe('1:02:03')
+    expect(parseDuration('1:30')).toBe(90)
+    expect(parseDuration('45')).toBe(45)
+    expect(parseDuration('1:x')).toBeNull()
+  })
+})

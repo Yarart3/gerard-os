@@ -12,14 +12,16 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "icons": "pwa-assets-generator",
-    "db:types": "supabase gen types typescript --remote --schema public > src/lib/database.types.ts"
+    "db:types": "supabase gen types typescript --remote --schema public > src/lib/database.types.ts",
+    "import:nutrition": "tsx scripts/import-nutrition.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.0",
     "@tanstack/react-query": "^5.107.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.30.6"
+    "react-router-dom": "^6.30.6",
+    "recharts": "^3.10.1"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -35,9 +37,11 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.7",
+    "exceljs": "^4.4.0",
     "globals": "^17.14.0",
     "jsdom": "^31.0.0",
     "prettier": "^3.10.0",
+    "tsx": "^4.23.15",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.72.2",
     "vite": "^8.3.8",
