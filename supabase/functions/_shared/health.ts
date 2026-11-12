@@ -81,14 +81,21 @@ function parseDay(v: unknown): string | null {
  * Parsea el cuerpo. Tolera: `workouts` como objeto suelto o como lista, números en texto con coma y fechas con zona variada.
  * Las entradas inválidas se cuentan en `skipped`. Lanza Error si el cuerpo no es un objeto.
  */
-export function parseHealthBody(raw: unknown): ParsedHealth {
+export function parseHealthBody(raw: unknown, now: number = Date.now()): ParsedHealth {
   if (!isObj(raw)) throw new Error('El cuerpo debe ser un objeto JSON')
+  // Forma plana (Atajo sin "Entrenamientos", solo energía activa reciente): { active_kcal, start?, duration_min?, type? }.
+  // Sin `start` se toma el momento de la petición.
+  const flat =
+    (raw.workouts === undefined || raw.workouts === null) && raw.active_kcal !== undefined
+      ? [{ ...raw, start: raw.start ?? new Date(now).toISOString(), type: raw.type ?? 'Energía activa' }]
+      : null
   const list =
-    raw.workouts === undefined || raw.workouts === null
+    flat ??
+    (raw.workouts === undefined || raw.workouts === null
       ? []
       : Array.isArray(raw.workouts)
         ? raw.workouts
-        : [raw.workouts]
+        : [raw.workouts])
   const workouts: HealthWorkout[] = []
   let skipped = 0
   for (const w of list.slice(0, MAX_WORKOUTS)) {

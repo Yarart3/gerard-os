@@ -47,6 +47,19 @@ describe('madridDay', () => {
   })
 })
 
+describe('parseHealthBody: forma plana del Atajo (energía activa)', () => {
+  it('sin start usa el momento de la petición y tipo "Energía activa"', () => {
+    const now = Date.parse('2026-11-13T19:30:00Z')
+    const p = parseHealthBody({ active_kcal: '412,6 kcal' }, now)
+    expect(p.workouts).toEqual([{ start: now, end: null, durationMin: null, type: 'Energía activa', activeKcal: 412.6 }])
+    expect(p.skipped).toBe(0)
+  })
+  it('acepta duración y tipo si vienen', () => {
+    const p = parseHealthBody({ active_kcal: 300, duration_min: '55', type: 'CrossFit' }, 0)
+    expect(p.workouts[0]).toMatchObject({ durationMin: 55, type: 'CrossFit', activeKcal: 300 })
+  })
+})
+
 describe('parseHealthBody', () => {
   it('tolera kcal en texto con coma, un único entreno suelto y duración desde end', () => {
     const p = parseHealthBody({
