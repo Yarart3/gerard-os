@@ -1,0 +1,244 @@
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+.grid2 {
+  display: grid;
+  gap: var(--gap);
+  grid-template-columns: 1fr;
+}
+@media (min-width: 900px) {
+  .grid2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+}
+.muted {
+  margin: 0;
+  color: var(--muted);
+  font-size: 15px;
+}
+.small {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+}
+.empty {
+  padding: 12px var(--pad-card);
+  margin: 0;
+  color: var(--muted);
+  font-size: 15px;
+}
+.form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.full {
+  grid-column: 1 / -1;
+}
+.dangerBtn {
+  color: var(--danger);
+  background: transparent;
+}
+.over {
+  color: var(--orange);
+}
+.textarea {
+  width: 100%;
+  min-height: 140px;
+  border: 0;
+  border-radius: var(--radius-input);
+  background: var(--fill);
+  padding: 12px 14px;
+  font-size: 16px;
+  resize: vertical;
+}
+.select {
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+    linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) 50%,
+    calc(100% - 13px) 50%;
+  background-size: 5px 5px;
+  background-repeat: no-repeat;
+  padding-right: 32px;
+}
+.checkRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  font-size: 16px;
+}
+.checkbox {
+  width: 22px;
+  height: 22px;
+  accent-color: var(--accentbg);
+  flex-shrink: 0;
+}
+
+/* Navegación de mes */
+.monthNav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.monthLabel {
+  flex: 1;
+  margin: 0;
+  text-align: center;
+  font-size: 17px;
+  font-weight: 600;
+}
+.iconBtn {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.iconBtn:active {
+  background: var(--fill);
+}
+.iconBtn:disabled {
+  color: var(--muted);
+  opacity: 0.5;
+}
+
+/* Totales */
+.total {
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.totalRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.catRow {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px var(--pad-card);
+}
+.catRow + .catRow {
+  border-top: 0.5px solid var(--line);
+}
+.catHead {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+/* Filas */
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 56px;
+  padding: 8px var(--pad-card);
+  border: 0;
+  background: transparent;
+  text-align: left;
+  color: inherit;
+}
+.row + .row {
+  border-top: 0.5px solid var(--line);
+}
+button.row:active {
+  background: var(--fill);
+}
+.rowText {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.rowTitle {
+  font-size: 16px;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+.rowMeta {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+}
+.amount {
+  font-size: 16px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.rowAction {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--fill);
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Etiquetas */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.tagBtn {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 22px;
+  background: var(--fill);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 500;
+}
+.tagBtn[aria-pressed='true'] {
+  background: var(--accentbg);
+  color: #fff;
+}
+.tagLine {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+.noteBody {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 15px;
+  color: var(--muted);
+  white-space: pre-line;
+}
+.inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.grow {
+  flex: 1;
+  min-width: 0;
+}

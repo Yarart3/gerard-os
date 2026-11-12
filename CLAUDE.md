@@ -270,7 +270,7 @@ Las Fases 2 a 6 de `FASES.md` se ejecutan en orden, una detrás de otra, con est
 | 1 · Base, auth, diseño, despliegue | ✅ Completada | |
 | 2 · Gym + Nutrición + importar Excel | ✅ Completada | Excel importado (44 alimentos, 2 recetas, 18 comidas) |
 | 3 · Agenda (iCloud CalDAV + Uni) | ✅ Completada | Probado con iCloud real: descubrir, sincronizar, crear, editar y borrar |
-| 4 · Personal | ⏳ Pendiente | |
+| 4 · Personal | ✅ Completada | Sin migración nueva |
 | 5 · Inglés | ⏳ Pendiente | Requiere las preguntas de la sección 7 y `GEMINI_API_KEY` |
 | 6 · Hoy, pulido y backups | ⏳ Pendiente | Requiere el token del repo `gerard-os-data` |
 
@@ -287,5 +287,10 @@ Las Fases 2 a 6 de `FASES.md` se ejecutan en orden, una detrás de otra, con est
 - El cron lee `cron_secret` y `project_url` de Supabase Vault (`private.run_caldav_sync()`); limpieza diaria a las 03:30.
 - Sincronización: ctag → etags en el rango −92/+366 días → multiget de los cambiados. `events.rrule`/`exdates` para recurrencias, expandidas en el cliente.
 - Supabase CLI 3.x apunta por defecto a la pila local: usar `--remote` en `db push`, `migration list`, etc. Desplegar funciones con `supabase functions deploy <nombre> --use-api` (sin Docker).
+
+**Decisiones de la Fase 4:**
+- Importes sumados en céntimos enteros (`toCents`). Presupuesto del mes = suma de `monthly_budget` de las categorías; "Sin categoría" no suma presupuesto.
+- Tipos (`series|movie|book`) y estados de la watchlist fijos (CHECK en BD); las plataformas y las etiquetas de notas van en `settings` sección `personal`.
+- `usePersonalSummary()` en `src/features/personal/api.ts` alimentará la tarjeta de Personal en Hoy (Fase 6).
 
 **Decisiones de la Fase 2:** el peso corporal de Ajustes de Gym es el mismo del perfil; los 4 tipos de ejercicio son fijos (solo se editan los grupos musculares); el MET de la sesión es la media de sus ejercicios; volumen, PRs y gráficas cuentan solo series marcadas como hechas; las recetas se apuntan en gramos de receta.
