@@ -1,6 +1,9 @@
 import { useMutation, useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query'
 import type { Tables, TablesInsert } from '../../lib/database.types'
 import { supabase } from '../../lib/supabase'
+import { offlineKeys } from '../../lib/offline/keys'
+import { withNewId } from '../../lib/offline/ids'
+import { useOfflineMutation } from '../../lib/offline/useOfflineMutation'
 import { fromCents, monthBounds, monthOf, summarizeMonth } from './logic/expenses'
 import { countPending } from './logic/watchlist'
 import { useToday } from '../../lib/useToday'
@@ -10,12 +13,8 @@ export type ExpenseCategory = Tables<'expense_categories'>
 export type WatchItem = Tables<'watchlist'>
 export type Note = Tables<'notes'>
 
-export const personalKeys = {
-  categories: ['expense_categories'] as const,
-  expenses: (month: string) => ['expenses', month] as const,
-  watchlist: ['watchlist'] as const,
-  notes: ['notes'] as const,
-}
+import { personalKeys } from './keys'
+export { personalKeys }
 
 function fail(error: { message: string } | null) {
   if (error) throw new Error(error.message)
@@ -79,25 +78,13 @@ export function useMonthExpenses(month: string) {
   })
 }
 
+/** Crear o editar un gasto: se apunta aunque no haya red y se envía solo al volver. */
 export function useSaveExpense() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: async (e: TablesInsert<'expenses'>) => {
-      const { error } = e.id
-        ? await supabase.from('expenses').update(e).eq('id', e.id)
-        : await supabase.from('expenses').insert(e)
-      fail(error)
-    },
-    onSettled: () => qc.invalidateQueries({ queryKey: ['expenses'] }),
-  })
+  return useOfflineMutation(offlineKeys.expenseSave, (e: TablesInsert<'expenses'>) => withNewId(e))
 }
 
 export function useDeleteExpense() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: async (id: string) => fail((await supabase.from('expenses').delete().eq('id', id)).error),
-    onSettled: () => qc.invalidateQueries({ queryKey: ['expenses'] }),
-  })
+  return useOfflineMutation<string>(offlineKeys.expenseDelete)
 }
 
 // ---------- Watchlist ----------
@@ -114,24 +101,11 @@ export function useWatchlist() {
 }
 
 export function useSaveWatch() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: async (w: TablesInsert<'watchlist'>) => {
-      const { error } = w.id
-        ? await supabase.from('watchlist').update(w).eq('id', w.id)
-        : await supabase.from('watchlist').insert(w)
-      fail(error)
-    },
-    onSettled: () => qc.invalidateQueries({ queryKey: personalKeys.watchlist }),
-  })
+  return useOfflineMutation(offlineKeys.watchSave, (w: TablesInsert<'watchlist'>) => withNewId(w))
 }
 
 export function useDeleteWatch() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: async (id: string) => fail((await supabase.from('watchlist').delete().eq('id', id)).error),
-    onSettled: () => qc.invalidateQueries({ queryKey: personalKeys.watchlist }),
-  })
+  return useOfflineMutation<string>(offlineKeys.watchDelete)
 }
 
 // ---------- Notas ----------
@@ -148,24 +122,11 @@ export function useNotes() {
 }
 
 export function useSaveNote() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: async (n: TablesInsert<'notes'>) => {
-      const { error } = n.id
-        ? await supabase.from('notes').update(n).eq('id', n.id)
-        : await supabase.from('notes').insert(n)
-      fail(error)
-    },
-    onSettled: () => qc.invalidateQueries({ queryKey: personalKeys.notes }),
-  })
+  return useOfflineMutation(offlineKeys.noteSave, (n: TablesInsert<'notes'>) => withNewId(n))
 }
 
 export function useDeleteNote() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: async (id: string) => fail((await supabase.from('notes').delete().eq('id', id)).error),
-    onSettled: () => qc.invalidateQueries({ queryKey: personalKeys.notes }),
-  })
+  return useOfflineMutation<string>(offlineKeys.noteDelete)
 }
 
 // ---------- Resumen (tarjeta de Personal en Hoy, Fase 6) ----------

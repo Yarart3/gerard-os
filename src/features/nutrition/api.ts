@@ -2,6 +2,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import type { Tables, TablesInsert } from '../../lib/database.types'
 import { supabase } from '../../lib/supabase'
+import { offlineKeys } from '../../lib/offline/keys'
+import { useOfflineMutation } from '../../lib/offline/useOfflineMutation'
+import { prepareAddMealItem } from './offline'
 import type { Macros, RecipeLike } from './logic/macros'
 
 export type Food = Tables<'foods'>
@@ -140,39 +143,19 @@ export function useDeleteRecipe() {
   })
 }
 
-/** Añade un alimento o receta a una comida (crea la comida del día si no existe). */
+/** Añade un alimento o receta a una comida (crea la comida del día si no existe). Funciona sin red. */
 export function useAddMealItem() {
-  return useNutritionMutation(
-    async (v: { date: string; slot: string; food_id?: string; recipe_id?: string; grams: number }) => {
-      const { data: meal, error } = await supabase
-        .from('meals')
-        .upsert({ date: v.date, slot: v.slot }, { onConflict: 'user_id,date,slot' })
-        .select('id, meal_items(position)')
-        .single()
-      fail(error)
-      const position = Math.max(-1, ...(meal!.meal_items ?? []).map((i) => i.position)) + 1
-      const ins = await supabase.from('meal_items').insert({
-        meal_id: meal!.id,
-        food_id: v.food_id ?? null,
-        recipe_id: v.recipe_id ?? null,
-        grams: v.grams,
-        position,
-      })
-      fail(ins.error)
-    },
+  return useOfflineMutation(
+    offlineKeys.mealAddItem,
+    (v: { date: string; slot: string; food_id?: string; recipe_id?: string; grams: number }, qc) =>
+      prepareAddMealItem(qc, v),
   )
 }
 
 export function useUpdateMealItem() {
-  return useNutritionMutation(async ({ id, grams }: { id: string; grams: number }) => {
-    const { error } = await supabase.from('meal_items').update({ grams }).eq('id', id)
-    fail(error)
-  })
+  return useOfflineMutation<{ id: string; grams: number }>(offlineKeys.mealUpdateItem)
 }
 
 export function useDeleteMealItem() {
-  return useNutritionMutation(async (id: string) => {
-    const { error } = await supabase.from('meal_items').delete().eq('id', id)
-    fail(error)
-  })
+  return useOfflineMutation<string>(offlineKeys.mealDeleteItem)
 }

@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Card, EmptyState, SegmentedControl, useToast, type Option } from '../../../components/ui'
+import { Card, EmptyState, NeedsConnection, SegmentedControl, useToast, type Option } from '../../../components/ui'
 import { ChevronLeft, ChevronRight, Plus } from '../../../components/ui/icons'
 import { formatLongDate } from '../../../lib/dates'
+import { useOnline } from '../../../lib/offline/connectivity'
 import {
   useCalendars,
   useCaldavSync,
@@ -46,15 +47,16 @@ export function CalendarTab() {
   const subjects = useSubjects()
   const status = useSyncStatus()
   const sync = useCaldavSync()
+  const online = useOnline()
 
   // Sincroniza al abrir si hace más de 5 min (o nunca). Una vez por montaje; los fallos no molestan.
   const autoSynced = useRef(false)
   useEffect(() => {
-    if (autoSynced.current || status.isLoading || calendars.isLoading) return
+    if (autoSynced.current || !online || status.isLoading || calendars.isLoading) return
     autoSynced.current = true
     const last = status.data?.lastSyncedAt
     if (last == null || Date.now() - last > STALE_MS) sync.mutate({})
-  }, [status.isLoading, status.data, calendars.isLoading, sync])
+  }, [online, status.isLoading, status.data, calendars.isLoading, sync])
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 30_000)
     return () => clearInterval(t)
@@ -105,7 +107,7 @@ export function CalendarTab() {
         <div className={s.grow}>
           <SegmentedControl label="Vista del calendario" options={VIEWS} value={view} onChange={setView} />
         </div>
-        <button type="button" className={`btn ${s.accentBtn}`} onClick={() => setTarget({ mode: 'new', date: anchor })}>
+        <button type="button" className={`btn ${s.accentBtn}`} onClick={() => setTarget({ mode: 'new', date: anchor })} disabled={!online}>
           <Plus size={20} /> Evento
         </button>
       </div>
@@ -135,10 +137,11 @@ export function CalendarTab() {
                 ? `Sincronizado ${formatAgo(last, now)}`
                 : 'Sin sincronizar todavía'}
         </span>
-        <button type="button" className="btn btn-plain" onClick={doSync} disabled={sync.isPending}>
+        <button type="button" className="btn btn-plain" onClick={doSync} disabled={sync.isPending || !online}>
           Sincronizar
         </button>
       </div>
+      <NeedsConnection />
 
       {noCalendars ? (
         <Card>

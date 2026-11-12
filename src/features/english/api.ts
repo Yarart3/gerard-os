@@ -2,7 +2,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { Json, Tables } from '../../lib/database.types'
 import { addDays, todayISO } from '../../lib/dates'
 import { supabase } from '../../lib/supabase'
-import { applyPoints, type DailyRow } from './logic/daily'
+import { newId } from '../../lib/offline/ids'
+import { offlineKeys } from '../../lib/offline/keys'
+import { useOfflineMutation } from '../../lib/offline/useOfflineMutation'
+import { enKeys } from './keys'
+import type { AwardVars, ReviewVars } from './offline'
+import type { DailyRow } from './logic/daily'
 import { reviewCard } from './logic/leitner'
 import { DEFAULT_LEVEL, LEVELS, parseAnswers, type EnglishAnswers, type EnglishProfile, type Level } from './profile'
 
@@ -12,15 +17,7 @@ export type Song = Tables<'songs'>
 export type Artist = Tables<'artists'>
 export type Attempt = Tables<'english_attempts'>
 
-export const enKeys = {
-  profile: ['english', 'profile'] as const,
-  daily: ['english', 'daily'] as const,
-  vocab: ['english', 'vocab'] as const,
-  exercises: (section: string) => ['english', 'exercises', section] as const,
-  attempts: ['english', 'attempts'] as const,
-  songs: ['english', 'songs'] as const,
-  artists: ['english', 'artists'] as const,
-}
+export { enKeys }
 
 function fail(error: { message: string } | null) {
   if (error) throw new Error(error.message)
@@ -71,22 +68,9 @@ export function useDaily() {
   })
 }
 
-/** Suma puntos al día de hoy (Europe/Madrid) y recalcula la racha. */
+/** Suma puntos al día de hoy (Europe/Madrid) y recalcula la racha. Funciona sin red. */
 export function useAward() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: async (points: number) => {
-      const today = todayISO()
-      const { data, error } = await supabase
-        .from('english_daily')
-        .select('date, points, streak')
-        .gte('date', addDays(today, -1))
-      fail(error)
-      const row = applyPoints(data ?? [], today, points)
-      fail((await supabase.from('english_daily').upsert(row, { onConflict: 'user_id,date' })).error)
-    },
-    onSettled: () => qc.invalidateQueries({ queryKey: enKeys.daily }),
-  })
+  return useOfflineMutation(offlineKeys.enAward, (points: number): AwardVars => ({ points, date: todayISO() }))
 }
 
 // ---------- Intentos ----------
@@ -94,11 +78,7 @@ export function useAward() {
 export type AttemptInput = { exercise_id?: string | null; answer: string; correct: boolean; feedback?: string; rule?: string }
 
 export function useRecordAttempt() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: async (a: AttemptInput) => fail((await supabase.from('english_attempts').insert(a)).error),
-    onSettled: () => qc.invalidateQueries({ queryKey: enKeys.attempts }),
-  })
+  return useOfflineMutation(offlineKeys.enAttempt, (a: AttemptInput) => ({ ...a, id: newId(), created_at: new Date().toISOString() }))
 }
 
 export function useRecentErrors(limit = 6) {
@@ -152,12 +132,13 @@ export function useAddCards() {
 }
 
 export function useReviewCard() {
-  const qc = useQueryClient()
-  return useMutation({
-    mutationFn: async ({ card, correct }: { card: Pick<VocabCard, 'id' | 'box'>; correct: boolean }) =>
-      fail((await supabase.from('vocab_cards').update(reviewCard(card, correct, todayISO())).eq('id', card.id)).error),
-    onSettled: () => qc.invalidateQueries({ queryKey: enKeys.vocab }),
-  })
+  return useOfflineMutation(
+    offlineKeys.enReview,
+    ({ card, correct }: { card: Pick<VocabCard, 'id' | 'box'>; correct: boolean }): ReviewVars => ({
+      id: card.id,
+      ...reviewCard(card, correct, todayISO()),
+    }),
+  )
 }
 
 export function useDeleteCard() {

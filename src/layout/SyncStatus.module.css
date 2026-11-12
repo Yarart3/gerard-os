@@ -1,0 +1,48 @@
+.region {
+  position: sticky;
+  top: var(--safe-top);
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+.region:empty,
+.region > div:empty {
+  display: none;
+}
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 0 0;
+  min-height: 32px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--card);
+  border: 0.5px solid var(--line);
+  box-shadow: var(--shadow);
+  font-size: 13px;
+  font-weight: 600;
+  pointer-events: auto;
+}
+.offline {
+  color: var(--orange);
+}
+.syncing {
+  color: var(--muted);
+}
+.error {
+  color: var(--danger);
+}
+.discard {
+  min-height: 44px;
+  margin: -8px -8px -8px 0;
+  padding: 0 12px;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--accent);
+  cursor: pointer;
+}

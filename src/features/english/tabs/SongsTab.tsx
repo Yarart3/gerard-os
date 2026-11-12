@@ -1,5 +1,5 @@
 import { useMemo, useState, type FormEvent } from 'react'
-import { Card, EmptyState, ListRow, SegmentedControl, useToast } from '../../../components/ui'
+import { Card, EmptyState, ListRow, SegmentedControl, useToast, NeedsConnection } from '../../../components/ui'
 import type { Json } from '../../../lib/database.types'
 import { aiMessage, useAi } from '../ai/useAi'
 import { checkSongAnswer, correctRephrase, songLesson } from '../ai/prompts'
@@ -128,9 +128,9 @@ function SongDetail({ song, onBack }: { song: Song; onBack: () => void }) {
       <button type="button" className="btn btn-plain" onClick={onBack}>Volver</button>
       <Card title={song.title}>
         <p className={s.muted}>{song.artist}</p>
-        <button type="button" className="btn btn-primary" onClick={generate} disabled={busy}>
+        <button type="button" className="btn btn-primary" onClick={generate} disabled={busy || !ai.online}>
           {busy ? 'Creando lección…' : lesson ? 'Rehacer la lección con IA' : 'Crear lección con IA'}
-        </button>
+        </button><NeedsConnection />
         {!lesson && <p className={s.small}>Sin IA disponible no se puede crear la lección; la letra queda guardada y puedes reintentarlo.</p>}
       </Card>
       {lesson && (
@@ -276,7 +276,7 @@ function Verses({ lines, items }: { lines: string[]; items: SongLesson['rephrase
             <p className={s.esSentence}>“{line}”</p>
             <p className={s.instruction}>{it.instruction}</p>
             <textarea className={s.textarea} rows={2} aria-label={`Tu versión del verso ${it.line}`} value={text[i] ?? ''} onChange={(e) => setText({ ...text, [i]: e.target.value })} />
-            <button type="button" className="btn" disabled={!(text[i] ?? '').trim()} onClick={() => go(i, line, it.instruction)}>Corregir</button>
+            <button type="button" className="btn" disabled={!(text[i] ?? '').trim() || !ai.online} onClick={() => go(i, line, it.instruction)}>Corregir</button>
             {out[i] && <p className={s.example}>{out[i]}</p>}
           </div>
         )
@@ -306,7 +306,7 @@ function Questions({ items }: { items: SongLesson['questions'] }) {
           <p className={s.esSentence}>{it.question}</p>
           <textarea className={s.textarea} rows={2} aria-label={`Respuesta a la pregunta ${i + 1}`} value={text[i] ?? ''} onChange={(e) => setText({ ...text, [i]: e.target.value })} />
           <div className={s.twoBtns}>
-            <button type="button" className="btn" disabled={!(text[i] ?? '').trim()} onClick={() => go(i, it.question)}>Corregir con IA</button>
+            <button type="button" className="btn" disabled={!(text[i] ?? '').trim() || !ai.online} onClick={() => go(i, it.question)}>Corregir con IA</button>
             <button type="button" className="btn btn-plain" onClick={() => setShown({ ...shown, [i]: !shown[i] })}>Respuesta de ejemplo</button>
           </div>
           {out[i] && <p className={s.example}>{out[i]}</p>}

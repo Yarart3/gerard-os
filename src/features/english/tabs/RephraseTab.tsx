@@ -1,5 +1,5 @@
 import { useMemo, useState, type FormEvent } from 'react'
-import { Card, EmptyState, SegmentedControl, useToast } from '../../../components/ui'
+import { Card, EmptyState, SegmentedControl, useToast, NeedsConnection } from '../../../components/ui'
 import { aiMessage, useAi } from '../ai/useAi'
 import { correctRephrase, fixMySentence, generateMoreByTopic } from '../ai/prompts'
 import { rephraseItem } from '../ai/schemas'
@@ -73,9 +73,9 @@ function Bank() {
             ))}
           </select>
         </label>
-        <button type="button" className="btn" onClick={more} disabled={busy}>
+        <button type="button" className="btn" onClick={more} disabled={busy || !ai.online}>
           {busy ? 'Generando…' : 'Generar más'}
-        </button>
+        </button><NeedsConnection />
       </div>
       {item ? (
         <Exercise key={item.key + idx} item={item} onNext={() => setIdx((i) => i + 1)} />
@@ -129,7 +129,7 @@ function Exercise({ item, onNext }: { item: Item; onNext: () => void }) {
             placeholder={`Versión ${i + 1}`}
             onChange={(e) => setVersions((x) => x.map((y, k) => (k === i ? e.target.value : y)))}
           />
-          <button type="button" className="btn" onClick={() => correct(i)} disabled={busy !== null || !v.trim()}>
+          <button type="button" className="btn" onClick={() => correct(i)} disabled={busy !== null || !v.trim() || !ai.online}>
             {busy === i ? 'Corrigiendo…' : 'Corregir'}
           </button>
           {verdicts[i] && (
@@ -184,9 +184,9 @@ function FixSentence() {
     <Card title="Corregir mi frase">
       <form className={s.stack} onSubmit={submit}>
         <textarea className={s.textarea} value={text} onChange={(e) => setText(e.target.value)} placeholder="Escribe una frase en inglés" aria-label="Tu frase en inglés" />
-        <button type="submit" className="btn btn-primary" disabled={busy || !text.trim()}>
+        <button type="submit" className="btn btn-primary" disabled={busy || !text.trim() || !ai.online}>
           {busy ? 'Corrigiendo…' : 'Corregir y dar 3 formas de decirla'}
-        </button>
+        </button><NeedsConnection />
       </form>
       {res && (
         <div className={s.stack}>

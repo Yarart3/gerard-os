@@ -1,4 +1,4 @@
-import { QueryClientProvider } from '@tanstack/react-query'
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { ToastProvider } from './components/ui'
 import { UiGallery } from './dev/UiGallery'
@@ -11,11 +11,21 @@ import { ThemeSync } from './features/settings/ThemeSync'
 import { AppLayout } from './layout/AppLayout'
 import { SECTIONS } from './layout/sections'
 import { SectionScreen } from './layout/SectionScreen'
+import { persistOptions } from './lib/offline/persister'
+import { registerOfflineMutations } from './lib/offline/register'
+import { resumeOfflineQueue } from './lib/offline/restore'
 import { queryClient } from './lib/queryClient'
+
+// Antes de restaurar la caché: las mutaciones pausadas recuperan su función por mutationKey.
+registerOfflineMutations(queryClient)
 
 export function App() {
   return (
-    <QueryClientProvider client={queryClient}>
+    <PersistQueryClientProvider
+      client={queryClient}
+      persistOptions={persistOptions}
+      onSuccess={() => resumeOfflineQueue(queryClient)}
+    >
       <AuthProvider>
         <ToastProvider>
           <HashRouter>
@@ -51,6 +61,6 @@ export function App() {
           </HashRouter>
         </ToastProvider>
       </AuthProvider>
-    </QueryClientProvider>
+    </PersistQueryClientProvider>
   )
 }

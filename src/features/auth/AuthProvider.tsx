@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from '
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from '../../lib/supabase'
 import { queryClient } from '../../lib/queryClient'
+import { clearPersistedCache } from '../../lib/offline/persister'
 
 type AuthState = { session: Session | null; loading: boolean }
 const AuthContext = createContext<AuthState>({ session: null, loading: true })
@@ -28,7 +29,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data } = supabase.auth.onAuthStateChange((event, session) => {
       setState({ session, loading: false })
       if (event === 'SIGNED_OUT') {
+        // Borra datos en memoria, la cola de escrituras pendientes y su copia persistida (IndexedDB).
         queryClient.clear()
+        void clearPersistedCache()
         // La copia offline de las lecturas no debe sobrevivir al cierre de sesión.
         if ('caches' in window) void caches.delete('supabase-rest')
       }

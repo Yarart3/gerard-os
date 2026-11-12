@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Card, EmptyState, useToast } from '../../../components/ui'
+import { Card, EmptyState, useToast, NeedsConnection } from '../../../components/ui'
 import { aiMessage, useAi } from '../ai/useAi'
 import { checkMyOrder, generateOrderSentences } from '../ai/prompts'
 import { orderItem } from '../ai/schemas'
@@ -58,9 +58,9 @@ export function WordOrderTab() {
             ))}
           </select>
         </label>
-        <button type="button" className="btn" onClick={generate} disabled={busy}>
+        <button type="button" className="btn" onClick={generate} disabled={busy || !ai.online}>
           {busy ? 'Generando…' : 'Generar frases nuevas'}
-        </button>
+        </button><NeedsConnection />
       </div>
       {puzzle ? (
         <PuzzleCard key={puzzle.key + idx} puzzle={puzzle} onNext={() => setIdx((i) => i + 1)} />
@@ -143,9 +143,12 @@ function PuzzleCard({ puzzle, onNext }: { puzzle: Puzzle; onNext: () => void }) 
               Comprobar
             </button>
             {state === 'bad' ? (
-              <button type="button" className="btn" onClick={askAi} disabled={busy}>
-                {busy ? 'Preguntando…' : '¿Mi orden también vale?'}
-              </button>
+              <>
+                <button type="button" className="btn" onClick={askAi} disabled={busy || !ai.online}>
+                  {busy ? 'Preguntando…' : '¿Mi orden también vale?'}
+                </button>
+                <NeedsConnection />
+              </>
             ) : (
               <button type="button" className="btn" onClick={() => setState('shown')}>
                 Ver solución

@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Card, ListRow, NumberInput, SegmentedControl, useToast } from '../../components/ui'
+import { Card, ListRow, NeedsConnection, NumberInput, SegmentedControl, useToast } from '../../components/ui'
+import { useOnline } from '../../lib/offline/connectivity'
 import { Check } from '../../components/ui/icons'
 import { formatAgo } from './format'
 import {
@@ -55,7 +56,8 @@ export default function AgendaSettingsPanel() {
 
   const last = status.data?.lastSyncedAt
   const cals = calendars.data ?? []
-  const busy = test.isPending || discover.isPending || sync.isPending
+  const online = useOnline()
+  const busy = !online || test.isPending || discover.isPending || sync.isPending
   const save = (patch: Parameters<typeof cfg.save>[0]) =>
     cfg.save(patch).catch(() => toast('No se han podido guardar los ajustes', 'error'))
 
@@ -88,6 +90,7 @@ export default function AgendaSettingsPanel() {
             {sync.isPending ? 'Sincronizando…' : 'Sincronizar ahora'}
           </button>
         </div>
+        <NeedsConnection />
       </Card>
 
       <Card title="Calendarios" flush>

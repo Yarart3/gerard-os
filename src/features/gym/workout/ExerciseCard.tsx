@@ -9,7 +9,6 @@ import { SetRow } from './SetRow'
 import s from '../Gym.module.css'
 
 type Props = {
-  date: string
   item: WorkoutItem
   exercise: Exercise | undefined
   canUp: boolean
@@ -18,9 +17,9 @@ type Props = {
   onSetDone: () => void
 }
 
-export function ExerciseCard({ date, item, exercise, canUp, canDown, onMove, onSetDone }: Props) {
+export function ExerciseCard({ item, exercise, canUp, canDown, onMove, onSetDone }: Props) {
   const { value: cfg } = useGymSettings()
-  const updateSet = useUpdateSet(date)
+  const updateSet = useUpdateSet()
   const addSet = useAddSet()
   const deleteSet = useDeleteSet()
   const deleteItem = useDeleteItem()

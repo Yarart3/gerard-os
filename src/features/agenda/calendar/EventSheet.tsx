@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
-import { Sheet, useToast } from '../../../components/ui'
+import { NeedsConnection, Sheet, useToast } from '../../../components/ui'
+import { useOnline } from '../../../lib/offline/connectivity'
 import { useEventMutations, type Calendar, type EventRow } from '../api'
 import { eventToForm, formToPayload, newEventForm, type EventForm } from '../logic/eventForm'
 import s from '../Agenda.module.css'
@@ -33,7 +34,9 @@ function Form({
     () => editing?.calendar_id ?? (calendars.find((c) => c.is_default) ?? calendars[0])?.id ?? '',
   )
   const set = <K extends keyof EventForm>(k: K, v: EventForm[K]) => setF((p) => ({ ...p, [k]: v }))
-  const busy = create.isPending || update.isPending || remove.isPending
+  const online = useOnline()
+  const busy = !online || create.isPending || update.isPending || remove.isPending
+  const saving = create.isPending || update.isPending || remove.isPending
 
   const submit = async (e: FormEvent) => {
     e.preventDefault()
@@ -118,8 +121,9 @@ function Form({
         </p>
       )}
       <button type="submit" className={`btn btn-primary ${s.full}`} disabled={busy}>
-        {busy ? 'Guardando…' : 'Guardar'}
+        {saving ? 'Guardando…' : 'Guardar'}
       </button>
+      <NeedsConnection className={s.full} />
       {editing && (
         <button type="button" className={`btn ${s.dangerBtn} ${s.full}`} onClick={del} disabled={busy}>
           Borrar evento

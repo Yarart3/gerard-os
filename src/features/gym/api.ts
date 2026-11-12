@@ -1,6 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { Tables, TablesInsert, TablesUpdate } from '../../lib/database.types'
 import { supabase } from '../../lib/supabase'
+import { withNewId } from '../../lib/offline/ids'
+import { offlineKeys } from '../../lib/offline/keys'
+import { useOfflineMutation } from '../../lib/offline/useOfflineMutation'
+import { gymKeys } from './keys'
+import { prepareAddItems } from './offline'
 import type { HistWorkout } from './logic/stats'
 import type { SetValues } from './logic/types'
 
@@ -9,11 +14,7 @@ export type SetRow = Tables<'sets'>
 export type WorkoutItem = Tables<'workout_items'> & { sets: SetRow[] }
 export type Workout = Tables<'workouts'> & { workout_items: WorkoutItem[] }
 
-export const gymKeys = {
-  exercises: ['exercises'] as const,
-  workout: (date: string) => ['workout', date] as const,
-  history: ['workouts', 'history'] as const,
-}
+export { gymKeys }
 
 function fail(error: { message: string } | null) {
   if (error) throw new Error(error.message)
@@ -142,119 +143,48 @@ export function useDeleteExercise() {
 }
 
 // ---------- Sesiones ----------
-async function ensureWorkout(date: string, existing: Workout | null | undefined): Promise<string> {
-  if (existing) return existing.id
-  const { data, error } = await supabase
-    .from('workouts')
-    .insert({ date, started_at: new Date().toISOString() })
-    .select('id')
-    .single()
-  fail(error)
-  return data!.id
-}
-
 export type NewItem = { exercise_id: string; sets: SetValues[] }
 
-/** Añade ejercicios (al final, en el orden dado) con sus series. Crea la sesión si no existe. */
+/** Añade ejercicios (al final, en el orden dado) con sus series. Crea la sesión si no existe. Funciona sin red. */
 export function useAddItems(date: string, workout: Workout | null | undefined) {
-  return useGymMutation(async ({ items, notes }: { items: NewItem[]; notes?: string }) => {
-    const workoutId = await ensureWorkout(date, workout)
-    if (notes !== undefined) {
-      const { error } = await supabase.from('workouts').update({ notes }).eq('id', workoutId)
-      fail(error)
-    }
-    if (!items.length) return
-    const start = (workout?.workout_items.at(-1)?.position ?? -1) + 1
-    const { data, error } = await supabase
-      .from('workout_items')
-      .insert(
-        items.map((it, i) => ({ workout_id: workoutId, exercise_id: it.exercise_id, position: start + i })),
-      )
-      .select('id, position')
-    fail(error)
-    const byPos = new Map((data ?? []).map((r) => [r.position, r.id]))
-    const sets = items.flatMap((it, i) =>
-      it.sets.map((s, position) => ({ ...s, item_id: byPos.get(start + i)!, position, done: false })),
-    )
-    if (sets.length) {
-      const res = await supabase.from('sets').insert(sets)
-      fail(res.error)
-    }
-  })
+  return useOfflineMutation(offlineKeys.gymAddItems, (v: { items: NewItem[]; notes?: string }, qc) =>
+    prepareAddItems(qc, date, workout, v),
+  )
 }
 
 export function useUpdateWorkout() {
-  return useGymMutation(async ({ id, patch }: { id: string; patch: TablesUpdate<'workouts'> }) => {
-    const { error } = await supabase.from('workouts').update(patch).eq('id', id)
-    fail(error)
-  })
+  return useOfflineMutation<{ id: string; patch: TablesUpdate<'workouts'> }>(offlineKeys.gymUpdateWorkout)
 }
 
 export function useDeleteWorkout() {
-  return useGymMutation(async (id: string) => {
-    const { error } = await supabase.from('workouts').delete().eq('id', id)
-    fail(error)
-  })
+  return useOfflineMutation<string>(offlineKeys.gymDeleteWorkout)
 }
 
 export function useDeleteItem() {
-  return useGymMutation(async (id: string) => {
-    const { error } = await supabase.from('workout_items').delete().eq('id', id)
-    fail(error)
-  })
+  return useOfflineMutation<string>(offlineKeys.gymDeleteItem)
 }
 
 /** Intercambia la posición de dos ejercicios de la sesión. */
 export function useSwapItems() {
-  return useGymMutation(async ([a, b]: [WorkoutItem, WorkoutItem]) => {
-    const r1 = await supabase.from('workout_items').update({ position: b.position }).eq('id', a.id)
-    fail(r1.error)
-    const r2 = await supabase.from('workout_items').update({ position: a.position }).eq('id', b.id)
-    fail(r2.error)
-  })
+  return useOfflineMutation(
+    offlineKeys.gymSwapItems,
+    ([a, b]: [WorkoutItem, WorkoutItem]) =>
+      [
+        { id: a.id, position: a.position },
+        { id: b.id, position: b.position },
+      ] as [Pick<WorkoutItem, 'id' | 'position'>, Pick<WorkoutItem, 'id' | 'position'>],
+  )
 }
 
 export function useAddSet() {
-  return useGymMutation(async (s: TablesInsert<'sets'>) => {
-    const { error } = await supabase.from('sets').insert(s)
-    fail(error)
-  })
+  return useOfflineMutation(offlineKeys.gymAddSet, (s: TablesInsert<'sets'>) => withNewId(s))
 }
 
-/** Actualiza una serie con respuesta optimista (marcar hecha no debe esperar a la red). */
-export function useUpdateSet(date: string) {
-  const qc = useQueryClient()
-  const key = gymKeys.workout(date)
-  return useMutation({
-    mutationFn: async ({ id, patch }: { id: string; patch: TablesUpdate<'sets'> }) => {
-      const { error } = await supabase.from('sets').update(patch).eq('id', id)
-      fail(error)
-    },
-    onMutate: async ({ id, patch }) => {
-      await qc.cancelQueries({ queryKey: key })
-      const previous = qc.getQueryData<Workout | null>(key)
-      if (previous)
-        qc.setQueryData<Workout>(key, {
-          ...previous,
-          workout_items: previous.workout_items.map((it) => ({
-            ...it,
-            sets: it.sets.map((s) => (s.id === id ? { ...s, ...patch } : s)),
-          })),
-        })
-      return { previous }
-    },
-    onError: (_e, _v, ctx) => qc.setQueryData(key, ctx?.previous),
-    onSettled: () =>
-      Promise.all([
-        qc.invalidateQueries({ queryKey: key }),
-        qc.invalidateQueries({ queryKey: ['workouts'] }),
-      ]),
-  })
+/** Actualiza una serie con respuesta optimista (marcar hecha no espera a la red). */
+export function useUpdateSet() {
+  return useOfflineMutation<{ id: string; patch: TablesUpdate<'sets'> }>(offlineKeys.gymUpdateSet)
 }
 
 export function useDeleteSet() {
-  return useGymMutation(async (id: string) => {
-    const { error } = await supabase.from('sets').delete().eq('id', id)
-    fail(error)
-  })
+  return useOfflineMutation<string>(offlineKeys.gymDeleteSet)
 }

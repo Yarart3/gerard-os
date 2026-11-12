@@ -1,5 +1,5 @@
 import { useMemo, useState, type FormEvent } from 'react'
-import { Card, EmptyState, ListRow, Pill, SearchInput, SegmentedControl, useToast } from '../../../components/ui'
+import { Card, EmptyState, ListRow, Pill, SearchInput, SegmentedControl, useToast, NeedsConnection } from '../../../components/ui'
 import { AudioButtons } from '../AudioButtons'
 import { aiMessage, useAi } from '../ai/useAi'
 import { vocabBatch } from '../ai/prompts'
@@ -189,9 +189,9 @@ function WordList({ cards }: { cards: VocabCard[] }) {
           <input className="input" value={ex} onChange={(e) => setEx(e.target.value)} placeholder="Ejemplo (opcional)" aria-label="Ejemplo" />
           <button type="submit" className="btn">Añadir</button>
         </form>
-        <button type="button" className="btn btn-plain" onClick={generate} disabled={busy}>
+        <button type="button" className="btn btn-plain" onClick={generate} disabled={busy || !ai.online}>
           {busy ? 'Generando…' : 'Generar 30 más con IA'}
-        </button>
+        </button><NeedsConnection />
       </Card>
       <SearchInput value={q} onChange={setQ} label="Buscar palabras" />
       <Card flush>

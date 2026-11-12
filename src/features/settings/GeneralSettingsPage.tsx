@@ -1,7 +1,18 @@
+import { useQueryClient } from '@tanstack/react-query'
 import { useState, type FormEvent } from 'react'
-import { Card, ListRow, PageHeader, Pill, SegmentedControl, useToast } from '../../components/ui'
+import {
+  Card,
+  ListRow,
+  NeedsConnection,
+  PageHeader,
+  Pill,
+  SegmentedControl,
+  useToast,
+} from '../../components/ui'
 import { Download } from '../../components/ui/icons'
 import { formatNumber, parseDecimal } from '../../lib/format'
+import { useOnline } from '../../lib/offline/connectivity'
+import { countUnsynced, unsyncedWarning } from '../../lib/offline/pending'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../auth/AuthProvider'
 import { collectExport, downloadJson } from './exportData'
@@ -25,6 +36,7 @@ function ProfileForm({ settings }: { settings: ReturnType<typeof useGeneralSetti
   const [weight, setWeight] = useState(toText(p.weight_kg))
   const [height, setHeight] = useState(toText(p.height_cm))
   const [birth, setBirth] = useState(p.birth_date ?? '')
+  const online = useOnline()
 
   const submit = async (e: FormEvent) => {
     e.preventDefault()
@@ -78,7 +90,8 @@ function ProfileForm({ settings }: { settings: ReturnType<typeof useGeneralSetti
         <input className="input" type="date" value={birth} onChange={(e) => setBirth(e.target.value)} />
       </label>
       <div className={s.actions}>
-        <button className="btn" style={{ color: 'var(--accent)' }} disabled={settings.saving}>
+        <NeedsConnection />
+        <button className="btn" style={{ color: 'var(--accent)' }} disabled={settings.saving || !online}>
           Guardar
         </button>
       </div>
@@ -91,6 +104,14 @@ export function GeneralSettingsPage() {
   const { session } = useAuth()
   const toast = useToast()
   const [exporting, setExporting] = useState(false)
+  const online = useOnline()
+  const qc = useQueryClient()
+
+  const signOut = () => {
+    const n = countUnsynced(qc)
+    if (n > 0 && !confirm(unsyncedWarning(n))) return
+    void supabase.auth.signOut()
+  }
 
   const setTheme = (theme: ThemePref) => {
     settings.save({ ...settings.value, theme }).catch(() => toast('No se ha podido guardar', 'error'))
@@ -131,8 +152,8 @@ export function GeneralSettingsPage() {
           <ListRow
             icon={<Download size={20} />}
             title="Exportar todo (JSON)"
-            onClick={exporting ? undefined : exportAll}
-            value={exporting ? 'Exportando…' : undefined}
+            onClick={exporting || !online ? undefined : exportAll}
+            value={exporting ? 'Exportando…' : !online ? 'Necesita conexión' : undefined}
           />
           <ListRow title="Exportar CSV" value={<Pill>Próximamente</Pill>} />
           <ListRow title="Importar" value={<Pill>Próximamente</Pill>} />
@@ -143,7 +164,7 @@ export function GeneralSettingsPage() {
           <ListRow
             title={<span style={{ color: 'var(--danger)' }}>Cerrar sesión</span>}
             chevron={false}
-            onClick={() => supabase.auth.signOut()}
+            onClick={signOut}
           />
         </Card>
       </div>

@@ -1,4 +1,5 @@
 import { useCallback } from 'react'
+import { useOnline } from '../../../lib/offline/connectivity'
 import { useProfile } from '../api'
 import { useEnglishSettings } from '../englishSettings'
 import { DEFAULT_LEVEL, EMPTY_ANSWERS, type EnglishProfile } from '../profile'
@@ -11,7 +12,9 @@ export function useAi() {
   const p: EnglishProfile = profile.data ?? { level: DEFAULT_LEVEL, answers: EMPTY_ANSWERS }
   const provider = cfg.value.ai_provider ?? undefined
   const run = useCallback(<T,>(task: AiTask<T>) => runAi(task, { provider }), [provider])
-  return { profile: p, run }
+  /** Sin red la IA no está disponible: los botones que la usan se deshabilitan y muestran "Necesita conexión". */
+  const online = useOnline()
+  return { profile: p, run, online }
 }
 
 export const aiMessage = (e: unknown) => (e instanceof Error ? e.message : 'La IA no está disponible')

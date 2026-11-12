@@ -1,4 +1,5 @@
 import type { ZodType } from 'zod'
+import { onlineManager } from '@tanstack/react-query'
 import { supabase } from '../../../lib/supabase'
 
 export type AiTask<T> = { system: string; prompt: string; schema: ZodType<T>; temperature?: number }
@@ -17,6 +18,7 @@ export class AiError extends Error {
 
 /** Llama a la Edge Function `ai`. Devuelve siempre { ok, ... } (nunca lanza por errores de la función). */
 export const callAi: AiCall = async (req) => {
+  if (!onlineManager.isOnline()) return { ok: false, error: 'Necesita conexión' }
   const { data, error } = await supabase.functions.invoke<AiReply>('ai', { body: req })
   if (error) {
     let msg = 'No se ha podido contactar con la IA (¿sin red?)'

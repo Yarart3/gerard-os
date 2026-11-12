@@ -113,7 +113,6 @@ export function WorkoutTab() {
           {items.map((item, i) => (
             <ExerciseCard
               key={item.id}
-              date={date}
               item={item}
               exercise={exercises.get(item.exercise_id)}
               canUp={i > 0}
