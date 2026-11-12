@@ -1,0 +1,35 @@
+.video {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 18px;
+  background: #000;
+  display: block;
+}
+.frame {
+  position: relative;
+}
+.guide {
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  top: 36%;
+  bottom: 36%;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  border-radius: 12px;
+  pointer-events: none;
+}
+.msg {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.4;
+}
+.error {
+  color: var(--danger);
+}
+.brand {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+}

@@ -1,15 +1,19 @@
-import { useState, type FormEvent } from 'react'
+import { lazy, Suspense, useState, type FormEvent } from 'react'
 import { Card, EmptyState, ListRow, NumberInput, SearchInput, Sheet, useToast } from '../../components/ui'
-import { Plus } from '../../components/ui/icons'
+import { Barcode, Plus } from '../../components/ui/icons'
 import { formatKcal, formatNumber } from '../../lib/format'
 import { matchesQuery } from '../gym/logic/catalog'
 import { useDeleteFood, useFoods, useSaveFood, type Food } from './api'
 import g from '../gym/Gym.module.css'
 
+// El lector (y ZXing) solo se descarga al pulsar «Escanear».
+const ScanFoodSheet = lazy(() => import('./scan/ScanFoodSheet'))
+
 export function FoodsView() {
   const { data = [], isLoading } = useFoods()
   const [q, setQ] = useState('')
   const [editing, setEditing] = useState<Food | 'new' | null>(null)
+  const [scanning, setScanning] = useState(false)
   const list = data.filter((f) => matchesQuery(f, q))
   return (
     <div className={g.stack}>
@@ -19,6 +23,9 @@ export function FoodsView() {
         </div>
         <button type="button" className={`btn ${g.accentBtn}`} onClick={() => setEditing('new')}>
           <Plus size={20} /> Nuevo
+        </button>
+        <button type="button" className={`btn ${g.accentBtn}`} onClick={() => setScanning(true)}>
+          <Barcode size={20} /> Escanear
         </button>
       </div>
       <Card flush>
@@ -47,6 +54,17 @@ export function FoodsView() {
           />
         )}
       </Card>
+      {scanning && (
+        <Suspense fallback={null}>
+          <ScanFoodSheet
+            onClose={() => setScanning(false)}
+            onFood={(food) => {
+              setScanning(false)
+              setEditing(food)
+            }}
+          />
+        </Suspense>
+      )}
       {editing && (
         <Sheet
           open

@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react'
+import { lazy, Suspense, useMemo, useState } from 'react'
 import { Card, ListRow, NumberInput, Pill, SearchInput, Sheet, useToast } from '../../components/ui'
-import { ChevronLeft, ChevronRight, Plus } from '../../components/ui/icons'
+import { Barcode, ChevronLeft, ChevronRight, Plus } from '../../components/ui/icons'
 import { addDays, formatLongDate } from '../../lib/dates'
 import { formatGrams, formatKcal, formatNumber } from '../../lib/format'
 import { matchesQuery } from '../gym/logic/catalog'
@@ -18,6 +18,9 @@ import { MacroSummary } from './MacroSummary'
 import g from '../gym/Gym.module.css'
 import n from './Nutrition.module.css'
 import { useToday } from '../../lib/useToday'
+
+// El lector (y ZXing) solo se descarga al pulsar «Escanear».
+const ScanFoodSheet = lazy(() => import('./scan/ScanFoodSheet'))
 
 const macroLine = (m: Macros) =>
   `P ${formatNumber(m.protein, 0)} · C ${formatNumber(m.carbs, 0)} · G ${formatNumber(m.fat, 0)} g`
@@ -142,6 +145,7 @@ function AddItemSheet({ date, slot, onClose }: { date: string; slot: string; onC
   const [q, setQ] = useState('')
   const [picked, setPicked] = useState<Pickable | null>(null)
   const [grams, setGrams] = useState<number | null>(100)
+  const [scanning, setScanning] = useState(false)
 
   const options = useMemo<Pickable[]>(
     () => [
@@ -175,6 +179,17 @@ function AddItemSheet({ date, slot, onClose }: { date: string; slot: string; onC
 
   return (
     <Sheet open onClose={onClose} title={`Añadir a ${slot}`}>
+      {scanning && (
+        <Suspense fallback={null}>
+          <ScanFoodSheet
+            onClose={() => setScanning(false)}
+            onFood={(f) => {
+              setScanning(false)
+              setPicked({ kind: 'food', id: f.id, name: f.name, per100: f })
+            }}
+          />
+        </Suspense>
+      )}
       {picked ? (
         <>
           <Card title={picked.name}>
@@ -198,7 +213,14 @@ function AddItemSheet({ date, slot, onClose }: { date: string; slot: string; onC
         </>
       ) : (
         <>
-          <SearchInput value={q} onChange={setQ} label="Buscar alimento o receta" />
+          <div className={g.inline}>
+            <div style={{ flex: 1 }}>
+              <SearchInput value={q} onChange={setQ} label="Buscar alimento o receta" />
+            </div>
+            <button type="button" className={`btn ${g.accentBtn}`} onClick={() => setScanning(true)}>
+              <Barcode size={20} /> Escanear
+            </button>
+          </div>
           <Card flush>
             {list.map((o) => (
               <ListRow

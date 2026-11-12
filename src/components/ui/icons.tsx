@@ -143,3 +143,10 @@ export const Volume = (p: IconProps) => (
     <path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" />
   </Svg>
 )
+
+export const Barcode = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M4 7V5.5A1.5 1.5 0 0 1 5.5 4H7M17 4h1.5A1.5 1.5 0 0 1 20 5.5V7M20 17v1.5a1.5 1.5 0 0 1-1.5 1.5H17M7 20H5.5A1.5 1.5 0 0 1 4 18.5V17" />
+    <path d="M8 9v6M11 9v6M14 9v6M16.5 9v6" />
+  </Svg>
+)

@@ -159,3 +159,17 @@ export function useUpdateMealItem() {
 export function useDeleteMealItem() {
   return useOfflineMutation<string>(offlineKeys.mealDeleteItem)
 }
+
+/** Alimento ya guardado con ese código de barras (sin llamar a Open Food Facts). */
+export function findFoodByBarcode(foods: Food[], code: string): Food | undefined {
+  return foods.find((f) => f.barcode === code)
+}
+
+/** Crea un alimento (con su código de barras) y lo devuelve. Requiere conexión. */
+export function useCreateFood() {
+  return useNutritionMutation(async (f: TablesInsert<'foods'>) => {
+    const { data, error } = await supabase.from('foods').insert(f).select('*').single()
+    fail(error)
+    return data as Food
+  })
+}

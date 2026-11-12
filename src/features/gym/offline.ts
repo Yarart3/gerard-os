@@ -115,6 +115,7 @@ export function registerGymMutations(qc: QueryClient) {
           notes: v.notes ?? null,
           kind: 'strength',
           result: null,
+          health_synced_at: null,
           ...stamp(),
           workout_items: items,
         })

@@ -444,6 +444,7 @@ export type Database = {
       }
       foods: {
         Row: {
+          barcode: string | null
           carbs: number
           created_at: string
           fat: number
@@ -456,6 +457,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          barcode?: string | null
           carbs?: number
           created_at?: string
           fat?: number
@@ -468,6 +470,7 @@ export type Database = {
           user_id?: string
         }
         Update: {
+          barcode?: string | null
           carbs?: number
           created_at?: string
           fat?: number
@@ -1037,6 +1040,7 @@ export type Database = {
       }
       workouts: {
         Row: {
+          health_synced_at: string | null
           created_at: string
           date: string
           duration_min: number | null
@@ -1051,6 +1055,7 @@ export type Database = {
           watch_kcal: number | null
         }
         Insert: {
+          health_synced_at?: string | null
           created_at?: string
           date?: string
           duration_min?: number | null
@@ -1065,6 +1070,7 @@ export type Database = {
           watch_kcal?: number | null
         }
         Update: {
+          health_synced_at?: string | null
           created_at?: string
           date?: string
           duration_min?: number | null

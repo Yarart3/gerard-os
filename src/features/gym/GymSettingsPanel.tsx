@@ -7,6 +7,7 @@ import { useGymSettings, type GymSettings } from './gymSettings'
 import { EXERCISE_TYPES, TYPE_LABEL } from './logic/types'
 import { kcalFromMacros } from '../nutrition/logic/macros'
 import { formatNumber } from '../../lib/format'
+import { HealthCard } from './HealthCard'
 import s from './Gym.module.css'
 
 const UNITS = [
@@ -157,6 +158,8 @@ function Form() {
           </p>
         </div>
       </Card>
+
+      <HealthCard />
 
       <Card title="Tipos y grupos musculares">
         <p className={s.small} style={{ margin: '0 0 10px' }}>

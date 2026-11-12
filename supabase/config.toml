@@ -438,3 +438,8 @@ verify_jwt = false
 # (lo llama GitHub Actions, que no tiene JWT de usuario).
 [functions.backup]
 verify_jwt = false
+
+# health compara la cabecera x-health-token con el secret HEALTH_TOKEN dentro de la función
+# (lo llama un Atajo de iOS, que no tiene JWT de usuario).
+[functions.health]
+verify_jwt = false
