@@ -137,3 +137,9 @@ export const Timer = (p: IconProps) => (
     <path d="M12 9.5v4l2.5 2M9.5 3h5" />
   </Svg>
 )
+export const Volume = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M4 9.5v5h3.5L12 18.5v-13L7.5 9.5H4Z" />
+    <path d="M15.5 9a4 4 0 0 1 0 6M18 6.5a7.5 7.5 0 0 1 0 11" />
+  </Svg>
+)

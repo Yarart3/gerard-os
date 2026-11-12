@@ -271,7 +271,7 @@ Las Fases 2 a 6 de `FASES.md` se ejecutan en orden, una detrás de otra, con est
 | 2 · Gym + Nutrición + importar Excel | ✅ Completada | Excel importado (44 alimentos, 2 recetas, 18 comidas) |
 | 3 · Agenda (iCloud CalDAV + Uni) | ✅ Completada | Probado con iCloud real: descubrir, sincronizar, crear, editar y borrar |
 | 4 · Personal | ✅ Completada | Sin migración nueva |
-| 5 · Inglés | ⏳ Pendiente | Requiere las preguntas de la sección 7 y `GEMINI_API_KEY` |
+| 5 · Inglés | ✅ Completada | IA probada con Gemini; perfil respondido en la app |
 | 6 · Hoy, pulido y backups | ⏳ Pendiente | Requiere el token del repo `gerard-os-data` |
 
 **Pendientes / problemas conocidos:**
@@ -292,5 +292,13 @@ Las Fases 2 a 6 de `FASES.md` se ejecutan en orden, una detrás de otra, con est
 - Importes sumados en céntimos enteros (`toCents`). Presupuesto del mes = suma de `monthly_budget` de las categorías; "Sin categoría" no suma presupuesto.
 - Tipos (`series|movie|book`) y estados de la watchlist fijos (CHECK en BD); las plataformas y las etiquetas de notas van en `settings` sección `personal`.
 - `usePersonalSummary()` en `src/features/personal/api.ts` alimentará la tarjeta de Personal en Hoy (Fase 6).
+
+**Decisiones de la Fase 5:**
+- `ai`: Gemini `v1beta/models/{AI_MODEL}:generateContent` (por defecto `gemini-3.5-flash-lite`), secrets opcionales `AI_PROVIDER`, `AI_MODEL`, `AI_DAILY_LIMIT` (200). Tablas `ai_cache` (solo JSON válido; los aciertos de caché no cuentan) y `ai_usage`.
+- Prompts en `src/features/english/ai/prompts.ts`; esquemas Zod en `ai/schemas.ts` con un reintento enviando el error. El texto del usuario va entre etiquetas y se trata como datos.
+- Las respuestas del perfil NO están en el repo: se rellenan en el cuestionario de la app (`english_profile.answers`).
+- Contenido semilla estático en `src/features/english/data/` (vocabulario B2, gramática, frases hechas, coloquiales, orden de palabras) para funcionar sin IA; lo generado por IA se guarda en `english_exercises`.
+- Huecos de canciones: palabra presente en su verso, repartidos por los tres tercios de la letra, nº según longitud (`gapRange`).
+- Pendiente: las voces de `speechSynthesis` dependen del dispositivo (en iOS pueden tardar en cargar).
 
 **Decisiones de la Fase 2:** el peso corporal de Ajustes de Gym es el mismo del perfil; los 4 tipos de ejercicio son fijos (solo se editan los grupos musculares); el MET de la sesión es la media de sus ejercicios; volumen, PRs y gráficas cuentan solo series marcadas como hechas; las recetas se apuntan en gramos de receta.

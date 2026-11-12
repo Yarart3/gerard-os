@@ -1,0 +1,36 @@
+// 30 frases hechas: traducción literal y significado real.
+export type Idiom = { phrase: string; literal: string; meaning: string; example: string }
+const I = (phrase: string, literal: string, meaning: string, example: string): Idiom => ({ phrase, literal, meaning, example })
+
+export const IDIOMS: Idiom[] = [
+  I('break a leg', 'rómpete una pierna', 'mucha suerte', 'Break a leg at the demo tomorrow!'),
+  I('piece of cake', 'trozo de tarta', 'algo muy fácil', 'That deadlift was a piece of cake.'),
+  I('under the weather', 'bajo el tiempo', 'pachucho, algo enfermo', "I'm a bit under the weather after that WOD."),
+  I('spill the beans', 'derramar las alubias', 'soltar un secreto', "Don't spill the beans about the season finale."),
+  I('hit the sack', 'golpear el saco', 'irse a dormir', "I'm going to hit the sack; the bug can wait."),
+  I('once in a blue moon', 'una vez en una luna azul', 'muy de vez en cuando', 'I skip leg day once in a blue moon.'),
+  I('the ball is in your court', 'la pelota está en tu pista', 'te toca decidir o actuar', "I sent the pull request; the ball is in your court."),
+  I('cost an arm and a leg', 'costar un brazo y una pierna', 'costar un ojo de la cara', 'That graphics card cost an arm and a leg.'),
+  I('bite the bullet', 'morder la bala', 'afrontar algo desagradable', "Let's bite the bullet and rewrite the old module."),
+  I('beat around the bush', 'golpear alrededor del arbusto', 'andarse por las ramas', 'Stop beating around the bush and tell me the result.'),
+  I('call it a day', 'llamarlo un día', 'dar por terminado el trabajo', "We've lifted enough; let's call it a day."),
+  I('cut corners', 'cortar esquinas', 'hacer algo a medias para ahorrar', 'Never cut corners on your warm-up.'),
+  I('get out of hand', 'salirse de la mano', 'descontrolarse', 'The group chat got out of hand during the finale.'),
+  I('hit the nail on the head', 'dar en la cabeza del clavo', 'dar en el clavo', 'You hit the nail on the head: it was a caching issue.'),
+  I('let the cat out of the bag', 'dejar salir al gato de la bolsa', 'revelar un secreto sin querer', 'He let the cat out of the bag about the sequel.'),
+  I('miss the boat', 'perder el barco', 'perder la oportunidad', 'Sign up now or you will miss the boat.'),
+  I('on the same page', 'en la misma página', 'estar de acuerdo / alineados', "Let's make sure we're all on the same page before the release."),
+  I('pull someone\'s leg', 'tirar de la pierna de alguien', 'tomar el pelo', "Are you pulling my leg? A new season already?"),
+  I('the last straw', 'la última paja', 'la gota que colma el vaso', 'A fourth outage was the last straw.'),
+  I('throw in the towel', 'tirar la toalla', 'rendirse', "I almost threw in the towel at the last round, but I didn't."),
+  I('back to square one', 'de vuelta a la casilla uno', 'volver a empezar', 'The server crashed, so it is back to square one.'),
+  I('a blessing in disguise', 'una bendición disfrazada', 'un mal que resulta bueno', 'Losing that file was a blessing in disguise: the new version is better.'),
+  I('go the extra mile', 'ir la milla extra', 'esforzarse más de lo esperado', 'She went the extra mile and wrote the tests too.'),
+  I('in the same boat', 'en el mismo barco', 'en la misma situación', 'We are all in the same boat: nobody slept.'),
+  I('keep an eye on', 'mantener un ojo en', 'vigilar, estar pendiente de', 'Keep an eye on the logs during the deploy.'),
+  I('play it by ear', 'tocarlo de oído', 'improvisar sobre la marcha', "I have no plan for the session; I'll play it by ear."),
+  I('rain check', 'comprobante de lluvia', 'dejarlo para otro día', "Can I take a rain check on the movie tonight?"),
+  I('sit on the fence', 'sentarse en la valla', 'no decantarse', "Don't sit on the fence: tabs or spaces?"),
+  I('burn the midnight oil', 'quemar el aceite de medianoche', 'trasnochar trabajando', 'We burned the midnight oil to ship the release.'),
+  I('the elephant in the room', 'el elefante en la habitación', 'el problema que todos evitan mencionar', "Nobody mentioned the elephant in the room: the budget."),
+]

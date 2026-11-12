@@ -8,7 +8,11 @@ import { SECTIONS } from './sections'
 vi.mock('../lib/supabase', async () => ({ supabase: (await import('../test/fakeSupabase')).fakeSupabase }))
 
 const gym = SECTIONS.find((s) => s.id === 'gym')!
-const english = SECTIONS.find((s) => s.id === 'english')!
+// Hoy aún no está construida (Fase 6): sirve para probar el estado vacío.
+const today = {
+  ...SECTIONS.find((s) => s.id === 'today')!,
+  subnav: { kind: 'chips' as const, options: [{ value: 'a', label: 'Apartado A' }] },
+}
 
 function Where() {
   return <output data-testid="path">{useLocation().pathname}</output>
@@ -21,7 +25,7 @@ function renderAt(path: string) {
       <MemoryRouter initialEntries={[path]}>
         <Routes>
           <Route path="gym/:sub?" element={<SectionScreen section={gym} />} />
-          <Route path="english/:sub?" element={<SectionScreen section={english} />} />
+          <Route path="today/:sub?" element={<SectionScreen section={today} />} />
         </Routes>
         <Where />
       </MemoryRouter>
@@ -49,8 +53,8 @@ describe('SectionScreen', () => {
   })
 
   it('una sección sin construir muestra el estado vacío', () => {
-    renderAt('/english/oido')
-    expect(screen.getByText('Oído: aún vacío')).toBeInTheDocument()
+    renderAt('/today')
+    expect(screen.getByText('Apartado A: aún vacío')).toBeInTheDocument()
   })
 
   it('un apartado desconocido vuelve al de por defecto', () => {

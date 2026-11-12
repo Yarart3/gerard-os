@@ -15,6 +15,10 @@ export const SECTION_CONTENT: Partial<
     Screen: lazy(() => import('../features/agenda/AgendaScreen')),
     Settings: lazy(() => import('../features/agenda/AgendaSettingsPanel')),
   },
+  english: {
+    Screen: lazy(() => import('../features/english/EnglishScreen')),
+    Settings: lazy(() => import('../features/english/EnglishSettingsPanel')),
+  },
   personal: {
     Screen: lazy(() => import('../features/personal/PersonalScreen')),
     Settings: lazy(() => import('../features/personal/PersonalSettingsPanel')),

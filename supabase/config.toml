@@ -429,3 +429,7 @@ enabled = true
 # así que la verificación automática se desactiva: pg_cron no tiene JWT de usuario.
 [functions.caldav]
 verify_jwt = false
+
+# ai valida el JWT del usuario dentro de la función (como caldav).
+[functions.ai]
+verify_jwt = false
