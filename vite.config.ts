@@ -83,6 +83,8 @@ export default defineConfig(({ command, isPreview }) => {
       globals: true,
       environment: 'jsdom',
       setupFiles: ['./src/test/setup.ts'],
+      // Los tests nunca usan el Supabase real: valores ficticios para que no dependan de .env.local (en CI no existe).
+      env: { VITE_SUPABASE_URL: 'http://localhost:54321', VITE_SUPABASE_ANON_KEY: 'test-anon-key' },
       css: { modules: { classNameStrategy: 'non-scoped' } },
     },
   }
