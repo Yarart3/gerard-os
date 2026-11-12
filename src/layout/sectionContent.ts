@@ -11,4 +11,8 @@ export const SECTION_CONTENT: Partial<
     Screen: lazy(() => import('../features/gym/GymScreen')),
     Settings: lazy(() => import('../features/gym/GymSettingsPanel')),
   },
+  agenda: {
+    Screen: lazy(() => import('../features/agenda/AgendaScreen')),
+    Settings: lazy(() => import('../features/agenda/AgendaSettingsPanel')),
+  },
 }

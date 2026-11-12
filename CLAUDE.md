@@ -269,7 +269,7 @@ Las Fases 2 a 6 de `FASES.md` se ejecutan en orden, una detrás de otra, con est
 |---|---|---|
 | 1 · Base, auth, diseño, despliegue | ✅ Completada | |
 | 2 · Gym + Nutrición + importar Excel | ✅ Completada | Excel importado (44 alimentos, 2 recetas, 18 comidas) |
-| 3 · Agenda (iCloud CalDAV + Uni) | ⏳ Pendiente | Requiere `APPLE_ID`, `APPLE_APP_PASSWORD`, `CRON_SECRET` |
+| 3 · Agenda (iCloud CalDAV + Uni) | ✅ Completada | Probado con iCloud real: descubrir, sincronizar, crear, editar y borrar |
 | 4 · Personal | ⏳ Pendiente | |
 | 5 · Inglés | ⏳ Pendiente | Requiere las preguntas de la sección 7 y `GEMINI_API_KEY` |
 | 6 · Hoy, pulido y backups | ⏳ Pendiente | Requiere el token del repo `gerard-os-data` |
@@ -279,5 +279,13 @@ Las Fases 2 a 6 de `FASES.md` se ejecutan en orden, una detrás de otra, con est
 - La hora de corte del día (04:00) aún no se aplica; "hoy" = fecha de Madrid. Se hace en la Fase 6.
 - Interfaz de Gym/Nutrición sin revisar visualmente en dispositivo.
 - `npm audit`: 17 vulnerabilidades en dependencias de terceros, sin revisar.
+- Agenda: eventos recurrentes sin excepciones por instancia (editar uno cambia la serie); la vista semana es una lista por días, no rejilla horaria; las entregas de la uni no se exportan a iCloud.
+
+**Decisiones de la Fase 3:**
+- Lógica pura compartida en `supabase/functions/_shared/` (sin APIs de Deno), importada también por el frontend y Vitest (`allowImportingTsExtensions`).
+- `caldav` con `verify_jwt = false`: valida el JWT dentro, o la cabecera `x-cron-secret` (solo `sync`). Errores esperados → HTTP 200 con `{ok:false,error}`.
+- El cron lee `cron_secret` y `project_url` de Supabase Vault (`private.run_caldav_sync()`); limpieza diaria a las 03:30.
+- Sincronización: ctag → etags en el rango −92/+366 días → multiget de los cambiados. `events.rrule`/`exdates` para recurrencias, expandidas en el cliente.
+- Supabase CLI 3.x apunta por defecto a la pila local: usar `--remote` en `db push`, `migration list`, etc. Desplegar funciones con `supabase functions deploy <nombre> --use-api` (sin Docker).
 
 **Decisiones de la Fase 2:** el peso corporal de Ajustes de Gym es el mismo del perfil; los 4 tipos de ejercicio son fijos (solo se editan los grupos musculares); el MET de la sesión es la media de sus ejercicios; volumen, PRs y gráficas cuentan solo series marcadas como hechas; las recetas se apuntan en gramos de receta.

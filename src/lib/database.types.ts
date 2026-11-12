@@ -266,6 +266,8 @@ export type Database = {
           deleted: boolean
           ends_at: string | null
           etag: string | null
+          exdates: string[]
+          rrule: string | null
           href: string | null
           id: string
           location: string | null
@@ -284,6 +286,8 @@ export type Database = {
           deleted?: boolean
           ends_at?: string | null
           etag?: string | null
+          exdates?: string[]
+          rrule?: string | null
           href?: string | null
           id?: string
           location?: string | null
@@ -302,6 +306,8 @@ export type Database = {
           deleted?: boolean
           ends_at?: string | null
           etag?: string | null
+          exdates?: string[]
+          rrule?: string | null
           href?: string | null
           id?: string
           location?: string | null
