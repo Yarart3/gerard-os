@@ -27,7 +27,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     })
     const { data } = supabase.auth.onAuthStateChange((event, session) => {
       setState({ session, loading: false })
-      if (event === 'SIGNED_OUT') queryClient.clear()
+      if (event === 'SIGNED_OUT') {
+        queryClient.clear()
+        // La copia offline de las lecturas no debe sobrevivir al cierre de sesión.
+        if ('caches' in window) void caches.delete('supabase-rest')
+      }
     })
     return () => data.subscription.unsubscribe()
   }, [])

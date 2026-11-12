@@ -28,7 +28,7 @@
 }
 .error {
   background: var(--danger);
-  color: #fff;
+  color: var(--on-solid);
 }
 @keyframes in {
   from {

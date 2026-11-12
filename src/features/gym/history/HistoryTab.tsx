@@ -5,7 +5,6 @@ import {
   formatDayMonth,
   formatLongDate,
   formatShortDate,
-  todayISO,
   weekStart,
 } from '../../../lib/dates'
 import { formatKcal, formatNumber } from '../../../lib/format'
@@ -16,6 +15,7 @@ import { personalRecords, progression, weeklySummary, workoutKcal, workoutVolume
 import { isExerciseUnit, type ExerciseUnit } from '../logic/types'
 import { BarsChart, LineSeries } from './Charts'
 import s from '../Gym.module.css'
+import { useToday } from '../../../lib/useToday'
 
 type Metric = 'volume' | 'kcal' | 'sessions'
 const METRICS = [
@@ -48,6 +48,8 @@ export function HistoryTab() {
   const exerciseId = chosen || trained[0]?.id || ''
   const exUnit = unitOf(exerciseId) ?? 'kg'
 
+  const today = useToday()
+
   if (isLoading) return <p className={s.muted}>Cargando…</p>
   if (!sessions.length)
     return (
@@ -60,7 +62,7 @@ export function HistoryTab() {
     )
 
   // Últimas 8 semanas (incluida la actual), también las que no tienen sesiones.
-  const thisWeek = weekStart(todayISO())
+  const thisWeek = weekStart(today)
   const byWeek = new Map(weeks.map((w) => [w.week, w]))
   const last8 = Array.from({ length: 8 }, (_, i) => addDays(thisWeek, (i - 7) * 7)).map((week) => {
     const w = byWeek.get(week) ?? { week, sessions: 0, volume: 0, kcal: 0 }

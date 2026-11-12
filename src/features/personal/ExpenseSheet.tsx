@@ -1,9 +1,9 @@
 import { useState, type FormEvent } from 'react'
 import { NumberInput, Sheet, useToast } from '../../components/ui'
-import { todayISO } from '../../lib/dates'
 import { useCategories, useDeleteExpense, useSaveExpense, type Expense } from './api'
 import { monthOf } from './logic/expenses'
 import s from './Personal.module.css'
+import { useToday } from '../../lib/useToday'
 
 type Props = { expense: Expense | 'new' | null; defaultMonth: string; onClose: () => void }
 
@@ -27,7 +27,7 @@ function Form({ expense, defaultMonth, onClose }: { expense: Expense | null; def
   const save = useSaveExpense()
   const del = useDeleteExpense()
   const categories = useCategories()
-  const today = todayISO()
+  const today = useToday()
   const [amount, setAmount] = useState<number | null>(expense?.amount ?? null)
   const [categoryId, setCategoryId] = useState(expense?.category_id ?? '')
   const [date, setDate] = useState(expense?.date ?? (monthOf(today) === defaultMonth ? today : `${defaultMonth}-01`))

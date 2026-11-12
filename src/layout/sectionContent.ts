@@ -7,6 +7,10 @@ type Lazy<P> = LazyExoticComponent<ComponentType<P>>
 export const SECTION_CONTENT: Partial<
   Record<SectionId, { Screen: Lazy<{ sub: string }>; Settings?: Lazy<object> }>
 > = {
+  today: {
+    Screen: lazy(() => import('../features/today/TodayScreen')),
+    Settings: lazy(() => import('../features/today/TodaySettingsPanel')),
+  },
   gym: {
     Screen: lazy(() => import('../features/gym/GymScreen')),
     Settings: lazy(() => import('../features/gym/GymSettingsPanel')),

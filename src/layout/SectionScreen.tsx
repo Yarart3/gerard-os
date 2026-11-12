@@ -1,6 +1,8 @@
 import { Suspense, useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { Card, ChipScroller, EmptyState, PageHeader, SegmentedControl } from '../components/ui'
+import { fromISO } from '../lib/dates'
+import { useToday } from '../lib/useToday'
 import { SectionSettingsSheet } from '../features/settings/SectionSettingsSheet'
 import { SECTION_CONTENT } from './sectionContent'
 import type { SectionDef } from './sections'
@@ -11,6 +13,7 @@ export function SectionScreen({ section }: { section: SectionDef }) {
   const { sub } = useParams()
   const navigate = useNavigate()
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const today = useToday()
   const options = section.subnav?.options ?? []
   const first = options[0]?.value
   const current = options.find((o) => o.value === sub)
@@ -28,6 +31,7 @@ export function SectionScreen({ section }: { section: SectionDef }) {
         title={section.label}
         onSettings={() => setSettingsOpen(true)}
         settingsLabel={`Ajustes de ${section.label}`}
+        date={noonOf(today)}
       />
       {section.subnav && active && (
         <div className={s.subnav}>
@@ -74,3 +78,6 @@ export function SectionScreen({ section }: { section: SectionDef }) {
     </div>
   )
 }
+
+/** Mediodía UTC del día `iso`: sirve para dar formato a la fecha del día (con hora de corte) sin saltos por zona horaria. */
+const noonOf = (iso: string) => new Date(fromISO(iso).getTime() + 12 * 3_600_000)

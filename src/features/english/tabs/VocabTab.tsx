@@ -1,6 +1,5 @@
 import { useMemo, useState, type FormEvent } from 'react'
 import { Card, EmptyState, ListRow, Pill, SearchInput, SegmentedControl, useToast } from '../../../components/ui'
-import { todayISO } from '../../../lib/dates'
 import { AudioButtons } from '../AudioButtons'
 import { aiMessage, useAi } from '../ai/useAi'
 import { vocabBatch } from '../ai/prompts'
@@ -10,6 +9,7 @@ import { boxCounts, isDue } from '../logic/leitner'
 import { sameTerm } from '../logic/diff'
 import { POINTS } from '../logic/daily'
 import s from '../English.module.css'
+import { useToday } from '../../../lib/useToday'
 
 const MODES = [
   { value: 'review', label: 'Repasar' },
@@ -60,7 +60,7 @@ export function VocabTab() {
 }
 
 function Review({ cards, write }: { cards: VocabCard[]; write: boolean }) {
-  const today = todayISO()
+  const today = useToday()
   const due = useMemo(() => cards.filter((c) => isDue(c, today)).sort((a, b) => a.box - b.box), [cards, today])
   const review = useReviewCard()
   const award = useAward()

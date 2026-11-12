@@ -433,3 +433,8 @@ verify_jwt = false
 # ai valida el JWT del usuario dentro de la función (como caldav).
 [functions.ai]
 verify_jwt = false
+
+# backup compara la cabecera x-backup-secret con el secret BACKUP_SECRET dentro de la función
+# (lo llama GitHub Actions, que no tiene JWT de usuario).
+[functions.backup]
+verify_jwt = false

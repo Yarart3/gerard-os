@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import { Card, EmptyState, useToast } from '../../../components/ui'
 import { Clipboard, Dumbbell, Plus, Repeat } from '../../../components/ui/icons'
-import { formatLongDate, formatShortDate, todayISO } from '../../../lib/dates'
+import { formatLongDate, formatShortDate } from '../../../lib/dates'
 import type { TablesUpdate } from '../../../lib/database.types'
 import {
   lastSetsOf,
@@ -21,9 +21,10 @@ import { ExerciseCard } from './ExerciseCard'
 import { RestTimer } from './RestTimer'
 import { WodSheet } from './WodSheet'
 import s from '../Gym.module.css'
+import { useToday } from '../../../lib/useToday'
 
 export function WorkoutTab() {
-  const date = todayISO()
+  const date = useToday()
   const toast = useToast()
   const { value: cfg } = useGymSettings()
   const workoutQ = useWorkoutOn(date)

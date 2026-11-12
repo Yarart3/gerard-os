@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Card } from '../../components/ui'
 import { ChevronLeft, ChevronRight } from '../../components/ui/icons'
-import { addDays, formatDayMonth, formatWeekdayShort, todayISO, weekDays, weekStart } from '../../lib/dates'
+import { addDays, formatDayMonth, formatWeekdayShort, weekDays, weekStart } from '../../lib/dates'
 import { formatNumber } from '../../lib/format'
 import { useGymSettings } from '../gym/gymSettings'
 import { useMeals, useNutritionMaps } from './api'
@@ -10,11 +10,12 @@ import { weekTable } from './logic/weekly'
 import { MacroSummary } from './MacroSummary'
 import g from '../gym/Gym.module.css'
 import n from './Nutrition.module.css'
+import { useToday } from '../../lib/useToday'
 
 const k = (v: number) => (v ? formatNumber(Math.round(v), 0) : '—')
 
 export function WeekView() {
-  const today = todayISO()
+  const today = useToday()
   const [start, setStart] = useState(weekStart(today))
   const days = weekDays(start)
   const end = days[6]!

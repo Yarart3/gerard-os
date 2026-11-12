@@ -1,0 +1,80 @@
+name: Backup
+
+# Copia semanal de todas las tablas al repo PRIVADO Yarart3/gerard-os-data (backups/YYYY-MM-DD.json + latest.json).
+# Secrets de Actions: SUPABASE_URL, BACKUP_SECRET, DATA_REPO_TOKEN.
+on:
+  schedule:
+    - cron: '0 3 * * 0' # domingos 03:00 UTC
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Comprobar secrets
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          BACKUP_SECRET: ${{ secrets.BACKUP_SECRET }}
+          DATA_REPO_TOKEN: ${{ secrets.DATA_REPO_TOKEN }}
+        run: |
+          missing=0
+          for name in SUPABASE_URL BACKUP_SECRET DATA_REPO_TOKEN; do
+            if [ -z "${!name}" ]; then
+              echo "::error::Falta el secret de Actions $name (Settings > Secrets and variables > Actions)"
+              missing=1
+            fi
+          done
+          exit $missing
+
+      - name: Exportar desde Supabase
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          BACKUP_SECRET: ${{ secrets.BACKUP_SECRET }}
+        run: |
+          set -euo pipefail
+          # Nada de imprimir el contenido: solo el código HTTP.
+          code=$(curl --silent --show-error --max-time 120 -X POST \
+            -H "x-backup-secret: $BACKUP_SECRET" \
+            -o "$RUNNER_TEMP/raw.json" -w '%{http_code}' \
+            "${SUPABASE_URL%/}/functions/v1/backup")
+          if [ "$code" != "200" ]; then
+            echo "::error::La función backup respondió HTTP $code (401 = BACKUP_SECRET distinto del de Supabase; 500 = falta BACKUP_SECRET o fallo al exportar; 404 = función sin desplegar)"
+            exit 1
+          fi
+          if ! jq -e '.exported_at and (.tables | type == "object")' "$RUNNER_TEMP/raw.json" > /dev/null; then
+            echo "::error::La respuesta no es el JSON esperado"
+            exit 1
+          fi
+          jq . "$RUNNER_TEMP/raw.json" > "$RUNNER_TEMP/backup.json"
+          echo "Tablas exportadas: $(jq '.tables | length' "$RUNNER_TEMP/backup.json")"
+
+      - name: Clonar el repo privado de datos
+        uses: actions/checkout@v5
+        with:
+          repository: Yarart3/gerard-os-data
+          token: ${{ secrets.DATA_REPO_TOKEN }}
+          path: data
+
+      - name: Guardar y subir
+        working-directory: data
+        run: |
+          set -euo pipefail
+          day=$(date -u +%F)
+          mkdir -p backups
+          cp "$RUNNER_TEMP/backup.json" "backups/$day.json"
+          cp "$RUNNER_TEMP/backup.json" latest.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add backups latest.json
+          if git diff --cached --quiet; then
+            echo "Sin cambios"
+          else
+            git commit -m "Backup $day"
+            git push
+          fi

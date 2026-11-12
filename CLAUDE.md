@@ -42,19 +42,21 @@ Todo debe costar **0 €**.
 | Secundario | 13 / 500–600 en color `--muted` |
 | Etiqueta de fecha | 13 / 600, mayúsculas, letter-spacing 0.02em |
 
-**Tokens de color:**
+**Tokens de color** (ajustados en la Fase 6 para cumplir contraste ≥ 4,5:1 con texto sobre --bg, --card y --fill):
 | Token | Claro | Oscuro |
 |---|---|---|
 | --bg | #F2F2F7 | #000000 |
 | --card | #FFFFFF | #1C1C1E |
 | --text | #1C1C1E | #F5F5F7 |
-| --muted | #6E6E73 | #98989D |
+| --muted | #68686D | #98989D |
 | --line | #E5E5EA | #38383A |
-| --accent (texto y enlaces) | #0071E3 | #0A84FF |
+| --accent (texto y enlaces) | #0066CC | #3D9BFF |
 | --accentbg (botón con texto blanco) | #0071E3 | #0A6CDB |
 | --fill (inputs, pills, pistas de barras) | #EEEEF2 | #2C2C2E |
-| --orange | #F56300 | #FF9F0A |
-| --green | #248A3D | #30D158 |
+| --orange | #BF4300 | #FF9F0A |
+| --green | #1D7A34 | #30D158 |
+| --danger | #D70015 | #FF6961 |
+| --on-solid (texto sobre fondos --green y --danger) | #FFFFFF | #000000 |
 | --tab (barra translúcida + blur 20px) | rgba(249,249,251,.92) | rgba(22,22,24,.92) |
 
 **Forma y espaciado:** tarjetas con radio 18 y padding 16; inputs con radio 10–12 y altura 44; botón principal con radio 14 y altura 50; separador de filas 0.5px `--line`; margen lateral 16; espacio entre tarjetas 16.
@@ -272,7 +274,7 @@ Las Fases 2 a 6 de `FASES.md` se ejecutan en orden, una detrás de otra, con est
 | 3 · Agenda (iCloud CalDAV + Uni) | ✅ Completada | Probado con iCloud real: descubrir, sincronizar, crear, editar y borrar |
 | 4 · Personal | ✅ Completada | Sin migración nueva |
 | 5 · Inglés | ✅ Completada | IA probada con Gemini; perfil respondido en la app |
-| 6 · Hoy, pulido y backups | ⏳ Pendiente | Requiere el token del repo `gerard-os-data` |
+| 6 · Hoy, pulido y backups | ✅ Completada | Falta probar el primer backup |
 
 **Pendientes / problemas conocidos:**
 - Revisar a mano en la app: "Empanadilla casera" (sin macros), receta "Carne picada con patatas" (sin ingredientes) y "Yogur fresa proteina" del menú (sin cantidad).
@@ -302,3 +304,4 @@ Las Fases 2 a 6 de `FASES.md` se ejecutan en orden, una detrás de otra, con est
 - Pendiente: las voces de `speechSynthesis` dependen del dispositivo (en iOS pueden tardar en cargar).
 
 **Decisiones de la Fase 2:** el peso corporal de Ajustes de Gym es el mismo del perfil; los 4 tipos de ejercicio son fijos (solo se editan los grupos musculares); el MET de la sesión es la media de sus ejercicios; volumen, PRs y gráficas cuentan solo series marcadas como hechas; las recetas se apuntan en gramos de receta.
+**Decisiones de la Fase 6:** `todayISO()`/`useToday()` (src/lib/dates.ts) aplican la hora de corte (ajuste `today.cutoff`, copia en localStorage `hub.dayCutoff`); `madridDateISO()` es la fecha natural sin corte. Backup: Edge Function `backup` (secret `BACKUP_SECRET`) + `backup.yml`. Sin persistencia de TanStack Query: la lectura offline la da el service worker (NetworkFirst sobre `/rest/`), que se vacía al cerrar sesión. `npm audit fix` sin `--force` no cambia nada; quedan react-router 6 (fix solo en v7) y dependencias de desarrollo.

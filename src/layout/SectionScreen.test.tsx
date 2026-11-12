@@ -3,14 +3,15 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
 import { SectionScreen } from './SectionScreen'
-import { SECTIONS } from './sections'
+import { SECTIONS, type SectionId } from './sections'
 
 vi.mock('../lib/supabase', async () => ({ supabase: (await import('../test/fakeSupabase')).fakeSupabase }))
 
 const gym = SECTIONS.find((s) => s.id === 'gym')!
-// Hoy aún no está construida (Fase 6): sirve para probar el estado vacío.
+// Sección sin contenido construido: sirve para probar el estado vacío.
 const today = {
   ...SECTIONS.find((s) => s.id === 'today')!,
+  id: 'sin-contenido' as SectionId,
   subnav: { kind: 'chips' as const, options: [{ value: 'a', label: 'Apartado A' }] },
 }
 

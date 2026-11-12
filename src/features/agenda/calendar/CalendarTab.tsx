@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Card, EmptyState, SegmentedControl, useToast, type Option } from '../../../components/ui'
 import { ChevronLeft, ChevronRight, Plus } from '../../../components/ui/icons'
-import { formatLongDate, todayISO } from '../../../lib/dates'
+import { formatLongDate } from '../../../lib/dates'
 import {
   useCalendars,
   useCaldavSync,
@@ -20,6 +20,7 @@ import { DayList } from './DayList'
 import { EventSheet, type EventSelection } from './EventSheet'
 import { MonthView } from './MonthView'
 import s from '../Agenda.module.css'
+import { useToday } from '../../../lib/useToday'
 
 const VIEWS: readonly Option<CalView>[] = [
   { value: 'month', label: 'Mes' },
@@ -32,7 +33,7 @@ export function CalendarTab() {
   const toast = useToast()
   const navigate = useNavigate()
   const { value: cfg } = useAgendaSettings()
-  const today = todayISO()
+  const today = useToday()
   const [view, setView] = useState<CalView>('month')
   const [anchor, setAnchor] = useState(today)
   const [target, setTarget] = useState<EventSelection | null>(null)

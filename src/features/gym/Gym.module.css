@@ -111,7 +111,7 @@
   min-width: 48px;
 }
 .stepBtn {
-  width: 32px;
+  width: 44px;
   min-height: 44px;
   border: 0;
   background: transparent;
@@ -133,7 +133,7 @@
 .doneOn {
   background: var(--green);
   border-color: var(--green);
-  color: #fff;
+  color: var(--on-solid);
 }
 .rowDone :global(.input) {
   color: var(--muted);
@@ -259,7 +259,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  min-height: 36px;
+  min-height: 44px;
   padding: 0 6px 0 12px;
   border: 0;
   border-radius: 999px;

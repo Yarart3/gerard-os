@@ -6,6 +6,7 @@ import { AuthProvider } from './features/auth/AuthProvider'
 import { LoginPage } from './features/auth/LoginPage'
 import { RequireAuth } from './features/auth/RequireAuth'
 import { GeneralSettingsPage } from './features/settings/GeneralSettingsPage'
+import { CutoffSync } from './features/today/CutoffSync'
 import { ThemeSync } from './features/settings/ThemeSync'
 import { AppLayout } from './layout/AppLayout'
 import { SECTIONS } from './layout/sections'
@@ -26,6 +27,7 @@ export function App() {
                   element={
                     <>
                       <ThemeSync />
+                      <CutoffSync />
                       <AppLayout />
                     </>
                   }

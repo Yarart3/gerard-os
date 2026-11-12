@@ -5,7 +5,7 @@ import { useNotes, type Note } from './api'
 import { allTags, filterNotes } from './logic/notes'
 import { NoteSheet } from './NoteSheet'
 import { usePersonalSettings } from './personalSettings'
-import { formatDayMonth, todayISO } from '../../lib/dates'
+import { formatDayMonth, madridDateISO } from '../../lib/dates'
 import s from './Personal.module.css'
 
 export function NotesTab() {
@@ -26,7 +26,7 @@ export function NotesTab() {
         <span className={s.rowTitle}>{n.title || 'Sin título'}</span>
         {n.body && <span className={s.noteBody}>{n.body}</span>}
         <span className={s.rowMeta}>
-          {formatDayMonth(todayISO(new Date(n.updated_at)))}
+          {formatDayMonth(madridDateISO(new Date(n.updated_at)))}
           {n.tags.length > 0 ? ` · ${n.tags.map((t) => `#${t}`).join(' ')}` : ''}
         </span>
       </span>

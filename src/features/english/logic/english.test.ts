@@ -77,7 +77,7 @@ describe('orden de palabras', () => {
 
 describe('puntos y racha (Europe/Madrid)', () => {
   it('"hoy" usa la fecha de Madrid, no la UTC', () => {
-    expect(todayISO(new Date('2026-11-12T23:30:00Z'))).toBe('2026-11-13')
+    expect(todayISO(new Date('2026-11-12T23:30:00Z'), 0)).toBe('2026-11-13')
   })
   it('la racha crece al practicar días seguidos y se reinicia tras un hueco', () => {
     const d1 = applyPoints([], '2026-11-10', 5)

@@ -50,8 +50,8 @@ describe('gastos', () => {
 
   it('el mes en curso usa la fecha de Madrid', () => {
     // 30 nov 23:30 UTC ya es 1 dic en Madrid (UTC+1)
-    expect(monthOf(todayISO(new Date('2026-11-30T23:30:00Z')))).toBe('2026-12')
-    expect(monthOf(todayISO(new Date('2026-06-30T22:30:00Z')))).toBe('2026-07') // verano, UTC+2
+    expect(monthOf(todayISO(new Date('2026-11-30T23:30:00Z'), 0))).toBe('2026-12')
+    expect(monthOf(todayISO(new Date('2026-06-30T22:30:00Z'), 0))).toBe('2026-07') // verano, UTC+2
   })
 
   it('navega entre meses y cruza años', () => {

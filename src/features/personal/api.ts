@@ -1,9 +1,9 @@
 import { useMutation, useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query'
 import type { Tables, TablesInsert } from '../../lib/database.types'
 import { supabase } from '../../lib/supabase'
-import { todayISO } from '../../lib/dates'
 import { fromCents, monthBounds, monthOf, summarizeMonth } from './logic/expenses'
 import { countPending } from './logic/watchlist'
+import { useToday } from '../../lib/useToday'
 
 export type Expense = Tables<'expenses'>
 export type ExpenseCategory = Tables<'expense_categories'>
@@ -172,7 +172,7 @@ export function useDeleteNote() {
 
 /** Gastos del mes en curso (euros) y elementos pendientes de la watchlist. */
 export function usePersonalSummary() {
-  const month = monthOf(todayISO())
+  const month = monthOf(useToday())
   const expenses = useMonthExpenses(month)
   const categories = useCategories()
   const watch = useWatchlist()

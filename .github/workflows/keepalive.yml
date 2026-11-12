@@ -17,5 +17,9 @@ jobs:
           SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         run: |
-          curl --fail --silent --show-error -X POST "$SUPABASE_URL/rest/v1/rpc/keepalive" \
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_KEY" ]; then
+            echo "::error::Faltan los secrets de Actions VITE_SUPABASE_URL y/o VITE_SUPABASE_ANON_KEY"
+            exit 1
+          fi
+          curl --fail --silent --show-error --max-time 30 --output /dev/null -X POST "$SUPABASE_URL/rest/v1/rpc/keepalive" \
             -H "apikey: $SUPABASE_KEY" -H "Content-Type: application/json" -d '{}'

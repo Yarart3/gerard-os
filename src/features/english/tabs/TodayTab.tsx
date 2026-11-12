@@ -1,11 +1,12 @@
 import { useNavigate } from 'react-router-dom'
 import { Card, EmptyState, ListRow, ProgressBar } from '../../../components/ui'
-import { todayISO, formatWeekdayShort } from '../../../lib/dates'
+import { formatWeekdayShort } from '../../../lib/dates'
 import { useDaily, useProfile, useRecentErrors, useVocab } from '../api'
 import { goalFor, useEnglishSettings } from '../englishSettings'
 import { currentStreak, lastSevenDays } from '../logic/daily'
 import { isDue } from '../logic/leitner'
 import s from '../English.module.css'
+import { useToday } from '../../../lib/useToday'
 
 export function TodayTab() {
   const navigate = useNavigate()
@@ -14,7 +15,7 @@ export function TodayTab() {
   const cfg = useEnglishSettings()
   const vocab = useVocab()
   const errors = useRecentErrors()
-  const today = todayISO()
+  const today = useToday()
   const rows = daily.data ?? []
   const goal = goalFor(cfg.value.daily_goal, profile.data?.answers.minutes ?? 20)
   const points = rows.find((r) => r.date === today)?.points ?? 0

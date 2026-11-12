@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Card, ListRow, NumberInput, Pill, SearchInput, Sheet, useToast } from '../../components/ui'
 import { ChevronLeft, ChevronRight, Plus } from '../../components/ui/icons'
-import { addDays, formatLongDate, todayISO } from '../../lib/dates'
+import { addDays, formatLongDate } from '../../lib/dates'
 import { formatGrams, formatKcal, formatNumber } from '../../lib/format'
 import { matchesQuery } from '../gym/logic/catalog'
 import { useGymSettings } from '../gym/gymSettings'
@@ -17,12 +17,13 @@ import { foodMacros, mealItemMacros, recipePer100, scaleMacros, sumMacros, type 
 import { MacroSummary } from './MacroSummary'
 import g from '../gym/Gym.module.css'
 import n from './Nutrition.module.css'
+import { useToday } from '../../lib/useToday'
 
 const macroLine = (m: Macros) =>
   `P ${formatNumber(m.protein, 0)} · C ${formatNumber(m.carbs, 0)} · G ${formatNumber(m.fat, 0)} g`
 
 export function DiaryView() {
-  const today = todayISO()
+  const today = useToday()
   const [date, setDate] = useState(today)
   const { value: cfg } = useGymSettings()
   const targets = cfg.nutrition

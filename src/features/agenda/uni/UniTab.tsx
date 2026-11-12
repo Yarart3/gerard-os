@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Card, EmptyState, ListRow, Pill, ProgressBar } from '../../../components/ui'
 import { Plus } from '../../../components/ui/icons'
-import { formatDayMonth, todayISO } from '../../../lib/dates'
+import { formatDayMonth } from '../../../lib/dates'
 import { formatNumber } from '../../../lib/format'
 import { localDateISO } from '../../../../supabase/functions/_shared/time.ts'
 import { useAgendaSettings } from '../agendaSettings'
@@ -19,6 +19,7 @@ import { DeadlineSheet } from './DeadlineSheet'
 import { MilestoneSheet } from './MilestoneSheet'
 import { SubjectSheet } from './SubjectSheet'
 import s from '../Agenda.module.css'
+import { useToday } from '../../../lib/useToday'
 
 const KIND_LABEL: Record<string, string> = { assignment: 'Entrega', exam: 'Examen', other: 'Otro' }
 
@@ -28,7 +29,7 @@ export function UniTab() {
   const deadlines = useDeadlines()
   const milestones = useMilestones()
   const saveDeadline = useSaveDeadline()
-  const today = todayISO()
+  const today = useToday()
   const [subject, setSubject] = useState<Subject | 'new' | null>(null)
   const [deadline, setDeadline] = useState<Deadline | 'new' | null>(null)
   const [milestone, setMilestone] = useState<Milestone | 'new' | null>(null)
@@ -112,14 +113,15 @@ export function UniTab() {
                 <ListRow
                   key={d.id}
                   icon={
-                    <input
-                      type="checkbox"
-                      className={s.checkbox}
-                      checked={d.done}
-                      aria-label={`Marcar «${d.title}» como hecha`}
-                      onClick={(e) => e.stopPropagation()}
-                      onChange={(e) => saveDeadline.mutate({ id: d.id, title: d.title, due_at: d.due_at, done: e.target.checked })}
-                    />
+                    <label className={s.hit} onClick={(e) => e.stopPropagation()}>
+                      <input
+                        type="checkbox"
+                        className={s.checkbox}
+                        checked={d.done}
+                        aria-label={`Marcar «${d.title}» como hecha`}
+                        onChange={(e) => saveDeadline.mutate({ id: d.id, title: d.title, due_at: d.due_at, done: e.target.checked })}
+                      />
+                    </label>
                   }
                   title={d.title}
                   subtitle={[KIND_LABEL[d.kind] ?? d.kind, sub?.name, formatDayMonth(localDateISO(Date.parse(d.due_at)))].filter(Boolean).join(' · ')}

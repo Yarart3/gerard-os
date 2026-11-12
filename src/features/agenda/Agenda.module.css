@@ -382,3 +382,12 @@ button.evRow:active {
     align-items: start;
   }
 }
+
+/* Área táctil de 44 px alrededor de una casilla suelta (sin ensanchar la fila) */
+.hit {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin: -11px;
+}

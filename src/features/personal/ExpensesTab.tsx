@@ -1,15 +1,16 @@
 import { useMemo, useState } from 'react'
 import { Card, ProgressBar } from '../../components/ui'
 import { ChevronLeft, ChevronRight, Plus } from '../../components/ui/icons'
-import { formatDayMonth, todayISO } from '../../lib/dates'
+import { formatDayMonth } from '../../lib/dates'
 import { formatEuros } from '../../lib/format'
 import { useCategories, useMonthExpenses, type Expense } from './api'
 import { ExpenseSheet } from './ExpenseSheet'
 import { addMonths, budgetRatio, formatMonth, fromCents, monthOf, summarizeMonth } from './logic/expenses'
 import s from './Personal.module.css'
+import { useToday } from '../../lib/useToday'
 
 export function ExpensesTab() {
-  const currentMonth = monthOf(todayISO())
+  const currentMonth = monthOf(useToday())
   const [month, setMonth] = useState(currentMonth)
   const [editing, setEditing] = useState<Expense | 'new' | null>(null)
   const expenses = useMonthExpenses(month)
