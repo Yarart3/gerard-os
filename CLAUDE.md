@@ -274,7 +274,7 @@ Las Fases 2 a 6 de `FASES.md` se ejecutan en orden, una detrás de otra, con est
 | 3 · Agenda (iCloud CalDAV + Uni) | ✅ Completada | Probado con iCloud real: descubrir, sincronizar, crear, editar y borrar |
 | 4 · Personal | ✅ Completada | Sin migración nueva |
 | 5 · Inglés | ✅ Completada | IA probada con Gemini; perfil respondido en la app |
-| 6 · Hoy, pulido y backups | ✅ Completada | Falta probar el primer backup |
+| 6 · Hoy, pulido y backups | ✅ Completada | Primer backup OK (12-11-2026) |
 
 **Pendientes / problemas conocidos:**
 - Revisar a mano en la app: "Empanadilla casera" (sin macros), receta "Carne picada con patatas" (sin ingredientes) y "Yogur fresa proteina" del menú (sin cantidad).
