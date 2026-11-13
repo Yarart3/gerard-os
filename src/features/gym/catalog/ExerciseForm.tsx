@@ -3,6 +3,7 @@ import { NumberInput, SegmentedControl, Sheet, useToast } from '../../../compone
 import { formatNumber } from '../../../lib/format'
 import { useDeleteExercise, useSaveExercise, type Exercise } from '../api'
 import { useGymSettings } from '../gymSettings'
+import { looksBodyweight } from '../logic/bodyweight'
 import { parseAliases } from '../logic/catalog'
 import {
   EXERCISE_TYPES,
@@ -53,6 +54,10 @@ function ExerciseForm({ exercise, onDone }: { exercise: Exercise | null; onDone:
   const [unitTouched, setUnitTouched] = useState(Boolean(exercise))
   const [met, setMet] = useState<number | null>(exercise?.met ?? null)
   const [archived, setArchived] = useState(exercise?.archived ?? false)
+  // null = automático (según el nombre y los alias)
+  const [bodyweight, setBodyweight] = useState<boolean | null>(exercise?.bodyweight ?? null)
+  const autoBw = looksBodyweight(name, parseAliases(aliases))
+  const bwApplies = unit === 'kg' || unit === 'reps'
   const groups = [...new Set([...cfg.muscle_groups, ...(group ? [group] : [])])]
 
   const submit = async (e: FormEvent) => {
@@ -68,6 +73,7 @@ function ExerciseForm({ exercise, onDone }: { exercise: Exercise | null; onDone:
         unit,
         met,
         archived,
+        bodyweight,
       })
       toast(exercise ? 'Ejercicio guardado' : 'Ejercicio creado')
       onDone()
@@ -157,6 +163,20 @@ function ExerciseForm({ exercise, onDone }: { exercise: Exercise | null; onDone:
           placeholder={`${formatNumber(cfg.met[type], 1)} (por tipo)`}
         />
       </label>
+      {bwApplies && (
+        <label className="field">
+          <span className="field-label">Peso corporal</span>
+          <select
+            className={`input ${s.select}`}
+            value={bodyweight === null ? 'auto' : bodyweight ? 'yes' : 'no'}
+            onChange={(e) => setBodyweight(e.target.value === 'auto' ? null : e.target.value === 'yes')}
+          >
+            <option value="auto">Automático ({autoBw ? 'sí' : 'no'})</option>
+            <option value="yes">Sí: peso corporal + lastre</option>
+            <option value="no">No</option>
+          </select>
+        </label>
+      )}
       <label className={s.checkRow}>
         <input
           type="checkbox"

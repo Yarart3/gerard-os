@@ -1,10 +1,11 @@
 import { Card } from '../../../components/ui'
 import { ArrowDown, ArrowUp, Plus, Trash } from '../../../components/ui/icons'
 import { useAddSet, useDeleteItem, useDeleteSet, useUpdateSet, type Exercise, type WorkoutItem } from '../api'
-import { useGymSettings } from '../gymSettings'
+import { useBodyWeight, useGymSettings } from '../gymSettings'
+import { bodyweightTotal, usesBodyweight, withBodyweight } from '../logic/bodyweight'
 import { nextSet } from '../logic/sets'
 import { isExerciseUnit, TYPE_LABEL, type ExerciseType } from '../logic/types'
-import { SET_HEADERS } from '../logic/display'
+import { formatWeight, SET_HEADERS } from '../logic/display'
 import { SetRow } from './SetRow'
 import s from '../Gym.module.css'
 
@@ -26,6 +27,9 @@ export function ExerciseCard({ item, exercise, canUp, canDown, onMove, onSetDone
   const unit = exercise && isExerciseUnit(exercise.unit) ? exercise.unit : 'reps'
   const name = exercise?.name ?? 'Ejercicio'
   const done = item.sets.filter((x) => x.done).length
+  const bodyKg = useBodyWeight()
+  const bw = usesBodyweight(exercise) ? { kg: bodyKg } : null
+  const headers = bw ? ['Lastre', 'Repes'] : SET_HEADERS[unit]
 
   return (
     <Card>
@@ -36,6 +40,10 @@ export function ExerciseCard({ item, exercise, canUp, canDown, onMove, onSetDone
             {[
               exercise && TYPE_LABEL[exercise.type as ExerciseType],
               exercise?.muscle_group,
+              bw &&
+                (bw.kg === null
+                  ? 'Peso corporal: ponlo en Ajustes'
+                  : `Peso corporal ${formatWeight(bw.kg, cfg.weight_unit)}`),
               `${done}/${item.sets.length} series`,
             ]
               .filter(Boolean)
@@ -74,7 +82,7 @@ export function ExerciseCard({ item, exercise, canUp, canDown, onMove, onSetDone
       <div className={s.setHead} aria-hidden="true">
         <span>#</span>
         <span className={s.setFields}>
-          {SET_HEADERS[unit].map((h) => (
+          {headers.map((h) => (
             <span key={h} style={{ textAlign: 'center' }}>
               {h}
             </span>
@@ -91,9 +99,18 @@ export function ExerciseCard({ item, exercise, canUp, canDown, onMove, onSetDone
           weightUnit={cfg.weight_unit}
           increment={cfg.weight_increment}
           exerciseName={name}
+          bodyweight={bw}
           onChange={(patch) => updateSet.mutate({ id: set.id, patch })}
           onToggleDone={() => {
-            updateSet.mutate({ id: set.id, patch: { done: !set.done } })
+            // Al marcarla, la carga total se fija con el peso corporal de hoy.
+            const total = bw && !set.done ? bodyweightTotal(bw.kg, set.added_kg) : undefined
+            updateSet.mutate({
+              id: set.id,
+              patch: {
+                done: !set.done,
+                ...(bw && !set.done ? { added_kg: set.added_kg ?? 0, weight_kg: total ?? null } : {}),
+              },
+            })
             if (!set.done) onSetDone()
           }}
         />
@@ -105,7 +122,7 @@ export function ExerciseCard({ item, exercise, canUp, canDown, onMove, onSetDone
           disabled={addSet.isPending}
           onClick={() =>
             addSet.mutate({
-              ...nextSet(item.sets),
+              ...(bw ? withBodyweight(nextSet(item.sets), bw.kg) : nextSet(item.sets)),
               item_id: item.id,
               position: (item.sets.at(-1)?.position ?? -1) + 1,
             })

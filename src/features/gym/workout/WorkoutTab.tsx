@@ -14,8 +14,10 @@ import {
   type Exercise,
 } from '../api'
 import { ExercisePicker } from '../catalog/ExercisePicker'
-import { useGymSettings } from '../gymSettings'
+import { useBodyWeight, useGymSettings } from '../gymSettings'
+import { usesBodyweight, withBodyweight } from '../logic/bodyweight'
 import { prefillSets } from '../logic/sets'
+import type { SetValues } from '../logic/types'
 import { CaloriesCard } from './CaloriesCard'
 import { ExerciseCard } from './ExerciseCard'
 import { RestTimer } from './RestTimer'
@@ -38,13 +40,19 @@ export function WorkoutTab() {
   const [wod, setWod] = useState(false)
   const [restEnd, setRestEnd] = useState<number | null>(null)
 
+  const bodyKg = useBodyWeight()
   const exercises = useMemo(() => new Map(catalog.map((e) => [e.id, e])), [catalog])
+  // Copia las series de la última vez; en peso corporal, con el peso de hoy y el mismo lastre.
+  const prefill = (exerciseId: string, sets: readonly SetValues[]) => {
+    const list = prefillSets(sets)
+    return usesBodyweight(exercises.get(exerciseId)) ? list.map((x) => withBodyweight(x, bodyKg)) : list
+  }
   const previous = history.find((w) => w.date < date && w.items.length)
   const items = workout?.workout_items ?? []
 
   const add = async (list: Exercise[], notes?: string) => {
     await addItems.mutateAsync({
-      items: list.map((e) => ({ exercise_id: e.id, sets: prefillSets(lastSetsOf(history, e.id, date)) })),
+      items: list.map((e) => ({ exercise_id: e.id, sets: prefill(e.id, lastSetsOf(history, e.id, date)) })),
       notes,
     })
   }
@@ -55,7 +63,7 @@ export function WorkoutTab() {
       await addItems.mutateAsync({
         items: previous.items.map((it) => ({
           exercise_id: it.exercise_id,
-          sets: prefillSets(it.sets),
+          sets: prefill(it.exercise_id, it.sets),
         })),
       })
       toast(`Sesión del ${formatShortDate(previous.date)} copiada`)

@@ -10,6 +10,7 @@ export const EMPTY_SET: SetValues = {
 
 const pick = (s: SetValues): SetValues => ({
   weight_kg: s.weight_kg,
+  ...(s.added_kg != null ? { added_kg: s.added_kg } : {}),
   reps: s.reps,
   seconds: s.seconds,
   meters: s.meters,

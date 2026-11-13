@@ -14,6 +14,66 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_cache: {
+        Row: {
+          created_at: string
+          hash: string
+          id: string
+          model: string
+          provider: string
+          response: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          hash: string
+          id?: string
+          model: string
+          provider: string
+          response: string
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          hash?: string
+          id?: string
+          model?: string
+          provider?: string
+          response?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ai_usage: {
+        Row: {
+          created_at: string
+          day: string
+          id: string
+          requests: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          day: string
+          id?: string
+          requests?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          day?: string
+          id?: string
+          requests?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       artists: {
         Row: {
           created_at: string
@@ -267,12 +327,12 @@ export type Database = {
           ends_at: string | null
           etag: string | null
           exdates: string[]
-          rrule: string | null
           href: string | null
           id: string
           location: string | null
           notes: string | null
           raw_ics: string | null
+          rrule: string | null
           starts_at: string
           title: string
           uid: string
@@ -287,12 +347,12 @@ export type Database = {
           ends_at?: string | null
           etag?: string | null
           exdates?: string[]
-          rrule?: string | null
           href?: string | null
           id?: string
           location?: string | null
           notes?: string | null
           raw_ics?: string | null
+          rrule?: string | null
           starts_at: string
           title?: string
           uid: string
@@ -307,12 +367,12 @@ export type Database = {
           ends_at?: string | null
           etag?: string | null
           exdates?: string[]
-          rrule?: string | null
           href?: string | null
           id?: string
           location?: string | null
           notes?: string | null
           raw_ics?: string | null
+          rrule?: string | null
           starts_at?: string
           title?: string
           uid?: string
@@ -333,6 +393,7 @@ export type Database = {
         Row: {
           aliases: string[]
           archived: boolean
+          bodyweight: boolean | null
           created_at: string
           id: string
           met: number | null
@@ -346,6 +407,7 @@ export type Database = {
         Insert: {
           aliases?: string[]
           archived?: boolean
+          bodyweight?: boolean | null
           created_at?: string
           id?: string
           met?: number | null
@@ -359,6 +421,7 @@ export type Database = {
         Update: {
           aliases?: string[]
           archived?: boolean
+          bodyweight?: boolean | null
           created_at?: string
           id?: string
           met?: number | null
@@ -682,6 +745,7 @@ export type Database = {
       }
       sets: {
         Row: {
+          added_kg: number | null
           calories: number | null
           created_at: string
           done: boolean
@@ -696,6 +760,7 @@ export type Database = {
           weight_kg: number | null
         }
         Insert: {
+          added_kg?: number | null
           calories?: number | null
           created_at?: string
           done?: boolean
@@ -710,6 +775,7 @@ export type Database = {
           weight_kg?: number | null
         }
         Update: {
+          added_kg?: number | null
           calories?: number | null
           created_at?: string
           done?: boolean
@@ -1040,10 +1106,10 @@ export type Database = {
       }
       workouts: {
         Row: {
-          health_synced_at: string | null
           created_at: string
           date: string
           duration_min: number | null
+          health_synced_at: string | null
           id: string
           kind: string
           met_kcal: number | null
@@ -1055,10 +1121,10 @@ export type Database = {
           watch_kcal: number | null
         }
         Insert: {
-          health_synced_at?: string | null
           created_at?: string
           date?: string
           duration_min?: number | null
+          health_synced_at?: string | null
           id?: string
           kind?: string
           met_kcal?: number | null
@@ -1070,10 +1136,10 @@ export type Database = {
           watch_kcal?: number | null
         }
         Update: {
-          health_synced_at?: string | null
           created_at?: string
           date?: string
           duration_min?: number | null
+          health_synced_at?: string | null
           id?: string
           kind?: string
           met_kcal?: number | null

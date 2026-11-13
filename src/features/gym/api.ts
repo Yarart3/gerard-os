@@ -69,7 +69,7 @@ export function useWorkoutHistory() {
       const { data, error } = await supabase
         .from('workouts')
         .select(
-          'id, date, duration_min, met_kcal, watch_kcal, notes, workout_items(id, exercise_id, position, sets(position, weight_kg, reps, seconds, meters, calories, done))',
+          'id, date, duration_min, met_kcal, watch_kcal, notes, workout_items(id, exercise_id, position, sets(position, weight_kg, added_kg, reps, seconds, meters, calories, done))',
         )
         .order('date', { ascending: false })
         .order('created_at', { ascending: false })

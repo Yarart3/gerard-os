@@ -28,6 +28,8 @@ export const isExerciseUnit = (v: string): v is ExerciseUnit =>
 /** Valores de una serie (subconjunto de la fila `sets`). */
 export type SetValues = {
   weight_kg: number | null
+  /** Lastre en ejercicios de peso corporal (null en el resto). */
+  added_kg?: number | null
   reps: number | null
   seconds: number | null
   meters: number | null

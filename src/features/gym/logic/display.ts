@@ -21,8 +21,16 @@ export function formatMetric(unit: ExerciseUnit, value: number, wu: WeightUnit =
   }
 }
 
-/** Texto de una serie: "60 kg × 8", "12 repes", "1:30"… */
+/** Lastre: "PC", "PC + 10 kg", "PC − 15 kg" (asistida). */
+const formatAdded = (added: number, wu: WeightUnit) =>
+  added === 0 ? 'PC' : `PC ${added > 0 ? '+' : '−'} ${formatWeight(Math.abs(added), wu)}`
+
+/** Texto de una serie: "60 kg × 8", "PC + 10 kg × 8", "12 repes", "1:30"… */
 export function formatSet(unit: ExerciseUnit, s: SetValues, wu: WeightUnit = 'kg'): string {
+  if (s.added_kg != null && (unit === 'kg' || unit === 'reps')) {
+    const w = formatAdded(s.added_kg, wu)
+    return s.reps !== null ? `${w} × ${s.reps}` : w
+  }
   if (unit === 'kg') {
     const w = s.weight_kg !== null ? formatWeight(s.weight_kg, wu) : '—'
     return s.reps !== null ? `${w} × ${s.reps}` : w

@@ -2,6 +2,7 @@ import { NumberInput } from '../../../components/ui'
 import { Check, Minus, Plus } from '../../../components/ui/icons'
 import { formatDuration, formatNumber, parseDuration } from '../../../lib/format'
 import type { SetRow as SetRowT } from '../api'
+import { bodyweightTotal } from '../logic/bodyweight'
 import { fromDisplayWeight, toDisplayWeight, type WeightUnit } from '../logic/sets'
 import type { ExerciseUnit } from '../logic/types'
 import { useState } from 'react'
@@ -14,6 +15,8 @@ type Props = {
   weightUnit: WeightUnit
   increment: number
   exerciseName: string
+  /** Peso corporal: se apunta el lastre y el peso total es peso corporal + lastre. */
+  bodyweight?: { kg: number | null } | null
   onChange: (patch: Partial<SetRowT>) => void
   onToggleDone: () => void
 }
@@ -59,14 +62,23 @@ export function SetRow({
   weightUnit,
   increment,
   exerciseName,
+  bodyweight,
   onChange,
   onToggleDone,
 }: Props) {
   const label = (what: string) => `${what}, serie ${index + 1} de ${exerciseName}`
-  const displayW = set.weight_kg === null ? null : round(toDisplayWeight(set.weight_kg, weightUnit))
-  const setWeight = (v: number | null) =>
-    onChange({ weight_kg: v === null ? null : round(fromDisplayWeight(v, weightUnit)) })
-  const step = (dir: 1 | -1) => setWeight(Math.max(0, round((displayW ?? 0) + dir * increment)))
+  const bw = bodyweight ?? null
+  const shownKg = bw ? (set.added_kg ?? 0) : set.weight_kg
+  const displayW = shownKg === null ? null : round(toDisplayWeight(shownKg, weightUnit))
+  const setWeight = (v: number | null) => {
+    const kg = v === null ? null : round(fromDisplayWeight(v, weightUnit))
+    if (!bw) return onChange({ weight_kg: kg })
+    const added = kg ?? 0
+    onChange({ added_kg: added, weight_kg: bodyweightTotal(bw.kg, added) })
+  }
+  // Con peso corporal el lastre puede ser negativo (asistida), sin bajar del peso corporal.
+  const minW = bw ? -(bw.kg === null ? Infinity : toDisplayWeight(bw.kg, weightUnit)) : 0
+  const step = (dir: 1 | -1) => setWeight(Math.max(minW, round((displayW ?? 0) + dir * increment)))
   const reps = (
     <NumberInput
       aria-label={label('Repeticiones')}
@@ -80,7 +92,7 @@ export function SetRow({
     <div className={`${s.setRow} ${set.done ? s.rowDone : ''}`}>
       <span className={s.setIndex}>{index + 1}</span>
       <div className={s.setFields}>
-        {unit === 'kg' && (
+        {(unit === 'kg' || bw) && (
           <>
             <div className={s.stepper}>
               <button
@@ -92,8 +104,8 @@ export function SetRow({
                 <Minus size={18} />
               </button>
               <NumberInput
-                aria-label={label(`Peso (${weightUnit})`)}
-                placeholder={weightUnit}
+                aria-label={label(bw ? `Lastre (${weightUnit})` : `Peso (${weightUnit})`)}
+                placeholder={bw ? '0' : weightUnit}
                 value={displayW}
                 onCommit={setWeight}
               />
@@ -109,7 +121,7 @@ export function SetRow({
             {reps}
           </>
         )}
-        {unit === 'reps' && reps}
+        {unit === 'reps' && !bw && reps}
         {unit === 'time' && (
           <TimeInput label={label('Tiempo')} value={set.seconds} onCommit={(v) => onChange({ seconds: v })} />
         )}
