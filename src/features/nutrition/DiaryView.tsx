@@ -34,6 +34,15 @@ export function DiaryView() {
   const maps = useNutritionMaps()
   const [adding, setAdding] = useState<string | null>(null)
   const [editing, setEditing] = useState<MealItem | null>(null)
+  // Comidas desplegadas (todas plegadas al entrar).
+  const [open, setOpen] = useState<ReadonlySet<string>>(() => new Set())
+  const toggle = (slot: string) =>
+    setOpen((cur) => {
+      const next = new Set(cur)
+      if (next.has(slot)) next.delete(slot)
+      else next.add(slot)
+      return next
+    })
 
   const itemsBySlot = new Map(meals.map((m) => [m.slot, m.meal_items]))
   // Momentos configurados + los que existan en los datos (p. ej. importados con otro nombre)
@@ -81,17 +90,33 @@ export function DiaryView() {
       {isLoading || maps.isLoading ? (
         <p className={g.muted}>Cargando…</p>
       ) : (
-        slots.map((slot) => {
-          const items = itemsBySlot.get(slot) ?? []
-          const kcal = sumMacros(items.map(macrosOf)).kcal
-          return (
-            <Card
-              key={slot}
-              flush
-              title={slot}
-              action={
-                <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  {items.length > 0 && <span className={n.slotKcal}>{formatKcal(kcal)}</span>}
+        <Card flush>
+          {slots.map((slot) => {
+            const items = itemsBySlot.get(slot) ?? []
+            const m = sumMacros(items.map(macrosOf))
+            const isOpen = open.has(slot)
+            const panelId = `slot-${slot.replace(/\s+/g, '-')}`
+            return (
+              <div key={slot} className={n.slot}>
+                <div className={n.slotHead}>
+                  <button
+                    type="button"
+                    className={n.slotToggle}
+                    aria-expanded={isOpen}
+                    aria-controls={panelId}
+                    onClick={() => toggle(slot)}
+                  >
+                    <ChevronRight size={18} className={`${n.chevron} ${isOpen ? n.chevronOpen : ''}`} />
+                    <span className={n.slotText}>
+                      <span className={n.slotName}>{slot}</span>
+                      <span className={n.slotSub}>
+                        {items.length
+                          ? `${items.length} ${items.length === 1 ? 'alimento' : 'alimentos'} · ${macroLine(m)}`
+                          : 'Nada apuntado'}
+                      </span>
+                    </span>
+                    {items.length > 0 && <span className={n.slotKcal}>{formatKcal(m.kcal)}</span>}
+                  </button>
                   <button
                     type="button"
                     className={n.addBtn}
@@ -100,27 +125,30 @@ export function DiaryView() {
                   >
                     <Plus size={20} />
                   </button>
-                </span>
-              }
-            >
-              {items.length ? (
-                items.map((it) => (
-                  <ListRow
-                    key={it.id}
-                    title={nameOf(it)}
-                    subtitle={`${formatGrams(it.grams)} · ${macroLine(macrosOf(it))}`}
-                    value={formatKcal(macrosOf(it).kcal)}
-                    onClick={() => setEditing(it)}
-                  />
-                ))
-              ) : (
-                <p className={g.muted} style={{ padding: '0 16px 16px' }}>
-                  Nada apuntado.
-                </p>
-              )}
-            </Card>
-          )
-        })
+                </div>
+                {isOpen && (
+                  <div id={panelId} className={n.slotPanel}>
+                    {items.map((it) => (
+                      <ListRow
+                        key={it.id}
+                        title={nameOf(it)}
+                        subtitle={`${formatGrams(it.grams)} · ${macroLine(macrosOf(it))}`}
+                        value={formatKcal(macrosOf(it).kcal)}
+                        onClick={() => setEditing(it)}
+                      />
+                    ))}
+                    <ListRow
+                      icon={<Plus size={20} />}
+                      title={<span style={{ color: 'var(--accent)' }}>Añadir alimento</span>}
+                      chevron={false}
+                      onClick={() => setAdding(slot)}
+                    />
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </Card>
       )}
 
       {adding && <AddItemSheet date={date} slot={adding} onClose={() => setAdding(null)} />}
