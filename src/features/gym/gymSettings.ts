@@ -1,4 +1,5 @@
 import { useGeneralSettings, useSectionSettings } from '../settings/useSettings'
+import { ageFrom, type Body } from './logic/calories'
 import { DEFAULT_MET } from './logic/met'
 import type { WeightUnit } from './logic/sets'
 import type { ExerciseType } from './logic/types'
@@ -65,4 +66,15 @@ export function useGymSettings() {
 /** Peso corporal: vive en el perfil de Ajustes generales (una sola fuente de verdad). */
 export function useBodyWeight(): number | null {
   return useGeneralSettings().value.profile.weight_kg
+}
+
+/** Datos del perfil que usan las fórmulas de calorías. */
+export function useBody(): Body {
+  const p = useGeneralSettings().value.profile
+  return {
+    weight_kg: p.weight_kg,
+    height_cm: p.height_cm,
+    age: ageFrom(p.birth_date),
+    sex: p.sex ?? null,
+  }
 }

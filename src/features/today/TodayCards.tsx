@@ -30,13 +30,13 @@ function KcalCard({ today }: { today: string }) {
     (meals.data ?? []).flatMap((m) => m.meal_items.map((it) => mealItemMacros(it, maps.foodMap, maps.recipeMap))),
   ).kcal
   const target = cfg.nutrition.kcal
-  // Suma de los entrenos terminados del día (puede haber varios).
-  const sum = (k: 'watch_kcal' | 'met_kcal') => {
-    const vals = day.data.map((w) => w[k]).filter((v): v is number => v !== null)
+  // Suma de los entrenos terminados del día (puede haber varios). Sin reloj: IA o combinada; si no, MET.
+  const sum = (pick: (w: (typeof day.data)[number]) => number | null | undefined) => {
+    const vals = day.data.map((w) => pick(w) ?? null).filter((v): v is number => v !== null)
     return vals.length ? vals.reduce((a, b) => a + b, 0) : null
   }
-  const watch = sum('watch_kcal')
-  const met = sum('met_kcal')
+  const watch = sum((w) => w.watch_kcal)
+  const met = sum((w) => w.est_kcal ?? w.met_kcal)
   return (
     <Card title="Calorías">
       <div className={s.head}>
@@ -58,7 +58,7 @@ function KcalCard({ today }: { today: string }) {
         </div>
         <div className={s.stat}>
           <span className={s.statValue}>{met !== null ? formatKcal(met) : '—'}</span>
-          <span className={s.small}>Quemadas · estimación MET</span>
+          <span className={s.small}>Quemadas · estimación</span>
         </div>
       </div>
     </Card>

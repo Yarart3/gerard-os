@@ -9,6 +9,8 @@ export type HistWorkout = {
   duration_min: number | null
   met_kcal: number | null
   watch_kcal: number | null
+  /** Estimación de la IA o combinada de fórmulas (workouts.energy). */
+  est_kcal?: number | null
   items: HistItem[]
 }
 
@@ -18,9 +20,9 @@ export const setVolume = (s: HistSet) => (s.done ? (s.weight_kg ?? 0) * (s.reps 
 export const workoutVolume = (w: HistWorkout) =>
   w.items.reduce((acc, it) => acc + it.sets.reduce((a, s) => a + setVolume(s), 0), 0)
 
-/** kcal de la sesión: el dato del Apple Watch si existe; si no, la estimación MET. */
-export const workoutKcal = (w: Pick<HistWorkout, 'met_kcal' | 'watch_kcal'>) =>
-  w.watch_kcal ?? w.met_kcal ?? 0
+/** kcal de la sesión: el Apple Watch si existe; si no, la IA / combinada; si no, el MET clásico. */
+export const workoutKcal = (w: Pick<HistWorkout, 'met_kcal' | 'watch_kcal' | 'est_kcal'>) =>
+  w.watch_kcal ?? w.est_kcal ?? w.met_kcal ?? 0
 
 /** 1RM estimado (Epley). */
 export const e1rm = (weight: number, reps: number) => (reps <= 1 ? weight : weight * (1 + reps / 30))

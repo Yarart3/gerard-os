@@ -1,10 +1,12 @@
 import { useEffect } from 'react'
 import { Card, NumberInput } from '../../../components/ui'
-import { formatKcal, formatNumber } from '../../../lib/format'
 import type { TablesUpdate } from '../../../lib/database.types'
 import type { Exercise, Workout } from '../api'
+import { energyJson, parseEnergy, type Energy } from '../energy'
 import { useBodyWeight, useGymSettings } from '../gymSettings'
 import { exerciseMet, metKcal, sessionMet } from '../logic/met'
+import { EnergyPanel } from './EnergyPanel'
+import { useEnergyMethods } from './useEnergyMethods'
 import s from '../Gym.module.css'
 
 type Props = {
@@ -13,30 +15,37 @@ type Props = {
   onUpdate: (patch: TablesUpdate<'workouts'>) => void
 }
 
-/** Estimación MET junto al dato manual del Apple Watch, con la diferencia. */
+/** Duración y kcal del Apple Watch, con las estimaciones por fórmulas y por IA (al editar un entreno). */
 export function CaloriesCard({ workout, exercises, onUpdate }: Props) {
   const { value: cfg } = useGymSettings()
   const weight = useBodyWeight()
-  const mets = workout.workout_items.flatMap((it) => {
-    const e = exercises.get(it.exercise_id)
-    return e ? [exerciseMet(e, cfg.met)] : []
-  })
-  const met = sessionMet(mets, cfg.met.strength)
   const minutes = workout.duration_min
+  const energy = parseEnergy(workout.energy)
+  const { combined } = useEnergyMethods(workout, exercises, minutes, energy.avg_hr ?? null)
+  const met = sessionMet(
+    workout.workout_items.flatMap((it) => {
+      const e = exercises.get(it.exercise_id)
+      return e ? [exerciseMet(e, cfg.met)] : []
+    }),
+    cfg.met.strength,
+  )
   const estimate = weight && minutes ? Math.round(metKcal(met, weight, minutes) * 10) / 10 : null
-  const watch = workout.watch_kcal
 
-  // Guarda la estimación en la sesión para el historial y los resúmenes.
-  const stored = workout.met_kcal
+  // Guarda la estimación MET y la combinada para el historial y los resúmenes.
+  const storedMet = workout.met_kcal
+  const storedCombined = energy.combined ?? null
   useEffect(() => {
-    if (estimate !== stored) onUpdate({ met_kcal: estimate })
-  }, [estimate, stored, onUpdate])
-
-  const diff = estimate !== null && watch !== null ? watch - estimate : null
+    if (estimate !== storedMet) onUpdate({ met_kcal: estimate })
+  }, [estimate, storedMet, onUpdate])
+  const energyRaw = JSON.stringify(workout.energy ?? null)
+  useEffect(() => {
+    if (combined !== storedCombined)
+      onUpdate({ energy: energyJson({ ...(JSON.parse(energyRaw) as Energy | null), combined }) })
+  }, [combined, storedCombined, energyRaw, onUpdate])
 
   return (
     <Card title="Calorías">
-      <div className={s.kcalGrid}>
+      <div className={s.kcalGrid} style={{ marginBottom: 12 }}>
         <label className="field">
           <span className="field-label">Duración (min)</span>
           <NumberInput
@@ -51,28 +60,19 @@ export function CaloriesCard({ workout, exercises, onUpdate }: Props) {
           <NumberInput
             decimals={0}
             placeholder="0"
-            value={watch}
+            value={workout.watch_kcal}
             onCommit={(v) => onUpdate({ watch_kcal: v })}
           />
         </label>
-        <div className={s.stat}>
-          <span className={s.statValue}>{estimate !== null ? formatKcal(estimate) : '—'}</span>
-          <span className={s.statLabel}>Estimación MET ({formatNumber(met, 1)})</span>
-        </div>
-        <div className={s.stat}>
-          <span className={s.statValue}>{watch !== null ? formatKcal(watch) : '—'}</span>
-          <span className={s.statLabel}>Apple Watch</span>
-        </div>
-        <p className={s.diff}>
-          {!weight
-            ? 'Añade tu peso en Ajustes de Gym para estimar las calorías.'
-            : !minutes
-              ? 'Añade la duración para estimar las calorías.'
-              : diff !== null
-                ? `Diferencia: ${diff > 0 ? '+' : diff < 0 ? '−' : ''}${formatKcal(Math.abs(diff))} (reloj − estimación)`
-                : 'Apunta las kcal del Apple Watch para compararlas.'}
-        </p>
       </div>
+      <EnergyPanel
+        workout={workout}
+        exercises={exercises}
+        minutes={minutes}
+        watch={workout.watch_kcal}
+        energy={energy}
+        onEnergy={(e) => onUpdate({ energy: energyJson({ ...e, combined }) })}
+      />
     </Card>
   )
 }

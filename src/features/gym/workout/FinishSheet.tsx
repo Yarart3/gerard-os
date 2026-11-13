@@ -1,11 +1,14 @@
 import { useState, type FormEvent } from 'react'
 import { NumberInput, Sheet, useToast } from '../../../components/ui'
-import { formatKcal, formatNumber } from '../../../lib/format'
+import { formatKcal } from '../../../lib/format'
 import { useUpdateWorkout, type Exercise, type Workout } from '../api'
+import { energyJson, parseEnergy, type Energy } from '../energy'
 import { useBodyWeight, useGymSettings } from '../gymSettings'
 import { formatVolume } from '../logic/display'
 import { exerciseMet, metKcal, sessionMet } from '../logic/met'
 import { elapsedMinutes, sessionStats } from '../logic/session'
+import { EnergyPanel } from './EnergyPanel'
+import { useEnergyMethods } from './useEnergyMethods'
 import s from '../Gym.module.css'
 
 type Props = {
@@ -36,6 +39,8 @@ function FinishForm({ workout, exercises, onSaved }: Props & { workout: Workout 
   )
   const [watch, setWatch] = useState<number | null>(workout.watch_kcal)
   const [notes, setNotes] = useState(workout.notes ?? '')
+  const [energy, setEnergy] = useState<Energy>(() => parseEnergy(workout.energy))
+  const { combined } = useEnergyMethods(workout, exercises, minutes, energy.avg_hr ?? null)
 
   const stats = sessionStats(workout.workout_items)
   const met = sessionMet(
@@ -59,6 +64,7 @@ function FinishForm({ workout, exercises, onSaved }: Props & { workout: Workout 
         watch_kcal: watch,
         met_kcal: estimate,
         notes: notes.trim() || null,
+        energy: energyJson({ ...energy, combined }),
         finished_at: new Date().toISOString(),
       },
     })
@@ -85,8 +91,10 @@ function FinishForm({ workout, exercises, onSaved }: Props & { workout: Workout 
           <span className={s.statLabel}>Volumen</span>
         </div>
         <div className={s.stat}>
-          <span className={s.statValue}>{estimate !== null ? formatKcal(estimate) : '—'}</span>
-          <span className={s.statLabel}>Kcal MET ({formatNumber(met, 1)})</span>
+          <span className={s.statValue}>
+            {energy.ai ? formatKcal(energy.ai.kcal) : combined !== null ? formatKcal(combined) : '—'}
+          </span>
+          <span className={s.statLabel}>{energy.ai ? 'Kcal (IA)' : `Kcal estimadas`}</span>
         </div>
       </div>
       <label className="field">
@@ -97,6 +105,17 @@ function FinishForm({ workout, exercises, onSaved }: Props & { workout: Workout 
         <span className="field-label">Apple Watch (kcal)</span>
         <NumberInput decimals={0} placeholder="0" value={watch} onCommit={setWatch} />
       </label>
+      <div className={`field ${s.full}`}>
+        <span className="field-label">Calorías</span>
+        <EnergyPanel
+          workout={workout}
+          exercises={exercises}
+          minutes={minutes}
+          watch={watch}
+          energy={energy}
+          onEnergy={setEnergy}
+        />
+      </div>
       <label className={`field ${s.full}`}>
         <span className="field-label">Notas</span>
         <textarea

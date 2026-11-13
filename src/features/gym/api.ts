@@ -5,6 +5,7 @@ import { newId, withNewId } from '../../lib/offline/ids'
 import { offlineKeys } from '../../lib/offline/keys'
 import { useOfflineMutation } from '../../lib/offline/useOfflineMutation'
 import { gymKeys } from './keys'
+import { estimateOf } from './energy'
 import { prepareAddItems } from './offline'
 import type { HistWorkout } from './logic/stats'
 import type { SetValues } from './logic/types'
@@ -87,7 +88,7 @@ export function useWorkoutHistory() {
       const { data, error } = await supabase
         .from('workouts')
         .select(
-          'id, date, title, started_at, finished_at, duration_min, met_kcal, watch_kcal, notes, workout_items(id, exercise_id, position, sets(position, weight_kg, added_kg, reps, seconds, meters, calories, done))',
+          'id, date, title, started_at, finished_at, duration_min, met_kcal, watch_kcal, energy, notes, workout_items(id, exercise_id, position, sets(position, weight_kg, added_kg, reps, seconds, meters, calories, done))',
         )
         .order('date', { ascending: false })
         .order('created_at', { ascending: false })
@@ -99,6 +100,7 @@ export function useWorkoutHistory() {
         duration_min: w.duration_min,
         met_kcal: w.met_kcal,
         watch_kcal: w.watch_kcal,
+        est_kcal: estimateOf(w.energy),
         notes: w.notes,
         title: w.title,
         started_at: w.started_at,

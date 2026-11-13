@@ -12,6 +12,8 @@ export type GeneralSettings = {
     weight_kg: number | null
     height_cm: number | null
     birth_date: string | null // YYYY-MM-DD
+    /** Para el basal (Mifflin) y las kcal por pulso (Keytel). */
+    sex?: 'male' | 'female' | null
   }
 }
 

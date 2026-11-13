@@ -1109,6 +1109,7 @@ export type Database = {
           created_at: string
           date: string
           duration_min: number | null
+          energy: Json | null
           finished_at: string | null
           health_synced_at: string | null
           id: string
@@ -1126,6 +1127,7 @@ export type Database = {
           created_at?: string
           date?: string
           duration_min?: number | null
+          energy?: Json | null
           finished_at?: string | null
           health_synced_at?: string | null
           id?: string
@@ -1143,6 +1145,7 @@ export type Database = {
           created_at?: string
           date?: string
           duration_min?: number | null
+          energy?: Json | null
           finished_at?: string | null
           health_synced_at?: string | null
           id?: string

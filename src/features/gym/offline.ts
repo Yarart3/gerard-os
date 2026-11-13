@@ -5,6 +5,7 @@ import { deleteRow, insertOnce, updateRow } from '../../lib/offline/db'
 import { defineOffline } from '../../lib/offline/define'
 import { newId, rowOf, type SaveVars } from '../../lib/offline/ids'
 import { offlineKeys } from '../../lib/offline/keys'
+import { estimateOf } from './energy'
 import { gymKeys } from './keys'
 import type { SetValues } from './logic/types'
 
@@ -20,6 +21,7 @@ type History = {
   duration_min: number | null
   met_kcal: number | null
   watch_kcal: number | null
+  est_kcal?: number | null
   notes: string | null
   items: { id: string; position: number; exercise_id: string; sets: SetValues[] }[]
 }
@@ -79,6 +81,7 @@ const emptyWorkout = (v: { id: string; date: string; started_at: string; title?:
   notes: v.notes ?? null,
   kind: 'strength',
   result: null,
+  energy: null,
   health_synced_at: null,
   ...stamp(),
   workout_items: [],
@@ -94,6 +97,7 @@ const toHistory = (w: Workout): History => ({
   duration_min: w.duration_min,
   met_kcal: w.met_kcal,
   watch_kcal: w.watch_kcal,
+  est_kcal: estimateOf(w.energy),
   notes: w.notes,
   items: w.workout_items.map((i) => ({ id: i.id, position: i.position, exercise_id: i.exercise_id, sets: i.sets })),
 })

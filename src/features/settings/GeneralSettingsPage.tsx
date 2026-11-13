@@ -36,6 +36,7 @@ function ProfileForm({ settings }: { settings: ReturnType<typeof useGeneralSetti
   const [weight, setWeight] = useState(toText(p.weight_kg))
   const [height, setHeight] = useState(toText(p.height_cm))
   const [birth, setBirth] = useState(p.birth_date ?? '')
+  const [sex, setSex] = useState<'male' | 'female' | ''>(p.sex ?? '')
   const online = useOnline()
 
   const submit = async (e: FormEvent) => {
@@ -45,6 +46,7 @@ function ProfileForm({ settings }: { settings: ReturnType<typeof useGeneralSetti
       weight_kg: parseDecimal(weight),
       height_cm: parseDecimal(height),
       birth_date: birth || null,
+      sex: sex || null,
     }
     try {
       await settings.save({ ...settings.value, profile })
@@ -85,9 +87,21 @@ function ProfileForm({ settings }: { settings: ReturnType<typeof useGeneralSetti
           placeholder="0"
         />
       </label>
-      <label className={`field ${s.full}`}>
+      <label className="field">
         <span className="field-label">Fecha de nacimiento</span>
         <input className="input" type="date" value={birth} onChange={(e) => setBirth(e.target.value)} />
+      </label>
+      <label className="field">
+        <span className="field-label">Sexo (para calorías)</span>
+        <select
+          className="input"
+          value={sex}
+          onChange={(e) => setSex(e.target.value === 'male' || e.target.value === 'female' ? e.target.value : '')}
+        >
+          <option value="">Sin indicar</option>
+          <option value="male">Hombre</option>
+          <option value="female">Mujer</option>
+        </select>
       </label>
       <div className={s.actions}>
         <NeedsConnection />
