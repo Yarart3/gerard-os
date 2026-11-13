@@ -12,7 +12,7 @@ import { useDaily, useProfile, useVocab } from '../english/api'
 import { goalFor, useEnglishSettings } from '../english/englishSettings'
 import { currentStreak } from '../english/logic/daily'
 import { isDue } from '../english/logic/leitner'
-import { useExercises, useWorkoutOn } from '../gym/api'
+import { useActiveWorkout, useDayWorkouts, useExercises } from '../gym/api'
 import { useGymSettings } from '../gym/gymSettings'
 import { mealItemMacros, sumMacros } from '../nutrition/logic/macros'
 import { useMeals, useNutritionMaps } from '../nutrition/api'
@@ -25,13 +25,18 @@ function KcalCard({ today }: { today: string }) {
   const { value: cfg } = useGymSettings()
   const meals = useMeals(today, today)
   const maps = useNutritionMaps()
-  const workout = useWorkoutOn(today)
+  const day = useDayWorkouts(today)
   const eaten = sumMacros(
     (meals.data ?? []).flatMap((m) => m.meal_items.map((it) => mealItemMacros(it, maps.foodMap, maps.recipeMap))),
   ).kcal
   const target = cfg.nutrition.kcal
-  const watch = workout.data?.watch_kcal ?? null
-  const met = workout.data?.met_kcal ?? null
+  // Suma de los entrenos terminados del día (puede haber varios).
+  const sum = (k: 'watch_kcal' | 'met_kcal') => {
+    const vals = day.data.map((w) => w[k]).filter((v): v is number => v !== null)
+    return vals.length ? vals.reduce((a, b) => a + b, 0) : null
+  }
+  const watch = sum('watch_kcal')
+  const met = sum('met_kcal')
   return (
     <Card title="Calorías">
       <div className={s.head}>
@@ -112,27 +117,45 @@ function DeadlinesCard({ today }: { today: string }) {
 }
 
 function WorkoutCard({ today }: { today: string }) {
-  const workout = useWorkoutOn(today)
+  const active = useActiveWorkout()
+  const day = useDayWorkouts(today)
   const exercises = useExercises()
   const names = new Map((exercises.data ?? []).map((e) => [e.id, e.name]))
-  const w = workout.data
-  const items = w?.workout_items ?? []
+  const live = active.data
+  const done = day.data
+  const exList = (ids: string[]) =>
+    ids
+      .slice(0, 3)
+      .map((id) => names.get(id) ?? '—')
+      .join(' · ')
   return (
     <Card title="Entreno de hoy" flush>
-      {w && items.length ? (
-        <>
-          <ListRow
-            to="/gym"
-            title={`${items.length} ${items.length === 1 ? 'ejercicio' : 'ejercicios'}`}
-            subtitle={items
-              .slice(0, 3)
-              .map((it) => names.get(it.exercise_id) ?? '—')
-              .join(' · ')}
-            value={w.duration_min ? `${w.duration_min} min` : undefined}
-          />
-        </>
-      ) : (
-        <ListRow to="/gym" title={workout.isLoading ? 'Cargando…' : 'Sin entreno hoy'} subtitle="Empezar una sesión" />
+      {live && (
+        <ListRow
+          to="/gym"
+          title={`En curso: ${live.title ?? 'Entreno'}`}
+          subtitle={
+            live.workout_items.length
+              ? exList(live.workout_items.map((i) => i.exercise_id))
+              : 'Sin ejercicios todavía'
+          }
+        />
+      )}
+      {done.map((w) => (
+        <ListRow
+          key={w.id}
+          to="/gym"
+          title={w.title ?? 'Entreno'}
+          subtitle={exList(w.items.map((i) => i.exercise_id)) || undefined}
+          value={w.duration_min ? `${w.duration_min} min` : undefined}
+        />
+      ))}
+      {!live && !done.length && (
+        <ListRow
+          to="/gym"
+          title={active.isLoading || day.isLoading ? 'Cargando…' : 'Sin entreno hoy'}
+          subtitle="Empezar un entreno"
+        />
       )}
     </Card>
   )

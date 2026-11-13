@@ -138,6 +138,24 @@
 .rowDone :global(.input) {
   color: var(--muted);
 }
+.prevLine {
+  grid-column: 2 / 3;
+  margin-top: -2px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+}
+.exNote {
+  width: 100%;
+  min-height: 36px;
+  margin-bottom: 8px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--fill);
+  padding: 8px 12px;
+  font-size: 15px;
+  resize: none;
+}
 .exFooter {
   display: flex;
   justify-content: space-between;
@@ -317,4 +335,76 @@
   background-size: 5px 5px;
   background-repeat: no-repeat;
   padding-right: 32px;
+}
+
+/* Entreno en curso (estilo Hevy) */
+.liveBar {
+  position: sticky;
+  top: calc(var(--safe-top) + 8px);
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px var(--pad-card);
+  border-radius: var(--radius-card);
+  background: var(--tab);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: var(--shadow);
+}
+.liveTop {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.titleInput {
+  flex: 1;
+  min-width: 0;
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  padding: 0;
+}
+.titleInput:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+.finishBtn {
+  min-height: 44px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--accentbg);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.liveStats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.liveStats .statValue {
+  font-size: 19px;
+  font-variant-numeric: tabular-nums;
+}
+.startBtn {
+  composes: finishBtn;
+  width: 100%;
+  min-height: var(--button-h);
+  font-size: 17px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.discard {
+  color: var(--danger);
+  align-self: center;
 }

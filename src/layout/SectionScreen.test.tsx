@@ -39,7 +39,7 @@ describe('SectionScreen', () => {
     renderAt('/gym')
     expect(screen.getByRole('heading', { level: 1, name: 'Gym' })).toBeInTheDocument()
     expect(screen.getByRole('radio', { name: 'Entreno' })).toHaveAttribute('aria-checked', 'true')
-    expect(await screen.findByText('Sin entreno hoy')).toBeInTheDocument()
+    expect(await screen.findByText('Empezar entreno vacío')).toBeInTheDocument()
     await userEvent.click(screen.getByRole('radio', { name: 'Nutrición' }))
     expect(screen.getByTestId('path')).toHaveTextContent('/gym/nutricion')
     expect(await screen.findByRole('group', { name: 'Apartados de Nutrición' })).toBeInTheDocument()

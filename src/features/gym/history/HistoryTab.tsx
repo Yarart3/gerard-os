@@ -38,7 +38,8 @@ export function HistoryTab() {
     const u = exById.get(id)?.unit
     return u && isExerciseUnit(u) ? u : undefined
   }
-  const sessions = history.filter((w) => w.items.length || w.duration_min)
+  // El entreno en curso no cuenta hasta que se termina.
+  const sessions = history.filter((w) => w.finished_at && (w.items.length || w.duration_min))
   const weeks = weeklySummary(sessions)
   const prs = personalRecords(sessions, unitOf)
   const trained = [...prs.keys()]
@@ -170,8 +171,9 @@ export function HistoryTab() {
         {sessions.slice(0, 60).map((w) => (
           <ListRow
             key={w.id}
-            title={formatLongDate(w.date)}
+            title={w.title ?? formatLongDate(w.date)}
             subtitle={[
+              w.title ? formatShortDate(w.date) : null,
               `${w.items.length} ejercicios`,
               workoutVolume(w) ? formatVolume(workoutVolume(w), wu) : null,
               w.duration_min ? `${w.duration_min} min` : null,
@@ -203,7 +205,7 @@ function SessionSheet({
   const toast = useToast()
   if (!workout) return null
   return (
-    <Sheet open onClose={onClose} title={formatLongDate(workout.date)}>
+    <Sheet open onClose={onClose} title={workout.title ? `${workout.title} · ${formatShortDate(workout.date)}` : formatLongDate(workout.date)}>
       <Card>
         <div className={s.summary} style={{ margin: 0 }}>
           <div className={s.stat}>

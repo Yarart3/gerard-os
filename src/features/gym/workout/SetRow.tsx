@@ -17,6 +17,8 @@ type Props = {
   exerciseName: string
   /** Peso corporal: se apunta el lastre y el peso total es peso corporal + lastre. */
   bodyweight?: { kg: number | null } | null
+  /** Lo que hiciste en esta serie la última vez («60 kg × 8»), como en Hevy. */
+  previous?: string | null
   onChange: (patch: Partial<SetRowT>) => void
   onToggleDone: () => void
 }
@@ -63,6 +65,7 @@ export function SetRow({
   increment,
   exerciseName,
   bodyweight,
+  previous,
   onChange,
   onToggleDone,
 }: Props) {
@@ -153,6 +156,7 @@ export function SetRow({
       >
         <Check size={20} />
       </button>
+      {previous && <span className={s.prevLine}>Anterior: {previous}</span>}
     </div>
   )
 }

@@ -1109,6 +1109,7 @@ export type Database = {
           created_at: string
           date: string
           duration_min: number | null
+          finished_at: string | null
           health_synced_at: string | null
           id: string
           kind: string
@@ -1116,6 +1117,7 @@ export type Database = {
           notes: string | null
           result: Json | null
           started_at: string | null
+          title: string | null
           updated_at: string
           user_id: string
           watch_kcal: number | null
@@ -1124,6 +1126,7 @@ export type Database = {
           created_at?: string
           date?: string
           duration_min?: number | null
+          finished_at?: string | null
           health_synced_at?: string | null
           id?: string
           kind?: string
@@ -1131,6 +1134,7 @@ export type Database = {
           notes?: string | null
           result?: Json | null
           started_at?: string | null
+          title?: string | null
           updated_at?: string
           user_id?: string
           watch_kcal?: number | null
@@ -1139,6 +1143,7 @@ export type Database = {
           created_at?: string
           date?: string
           duration_min?: number | null
+          finished_at?: string | null
           health_synced_at?: string | null
           id?: string
           kind?: string
@@ -1146,6 +1151,7 @@ export type Database = {
           notes?: string | null
           result?: Json | null
           started_at?: string | null
+          title?: string | null
           updated_at?: string
           user_id?: string
           watch_kcal?: number | null

@@ -6,7 +6,9 @@ export const OFFLINE_ROOT = ['offline'] as const
 export const OFFLINE_SCOPE = { id: 'offline' } as const
 
 export const offlineKeys = {
+  gymStartWorkout: ['offline', 'gym', 'startWorkout'],
   gymAddItems: ['offline', 'gym', 'addItems'],
+  gymUpdateItem: ['offline', 'gym', 'updateItem'],
   gymUpdateWorkout: ['offline', 'gym', 'updateWorkout'],
   gymDeleteWorkout: ['offline', 'gym', 'deleteWorkout'],
   gymDeleteItem: ['offline', 'gym', 'deleteItem'],

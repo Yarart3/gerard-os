@@ -1,11 +1,19 @@
 import { Card } from '../../../components/ui'
 import { ArrowDown, ArrowUp, Plus, Trash } from '../../../components/ui/icons'
-import { useAddSet, useDeleteItem, useDeleteSet, useUpdateSet, type Exercise, type WorkoutItem } from '../api'
+import {
+  useAddSet,
+  useDeleteItem,
+  useDeleteSet,
+  useUpdateItem,
+  useUpdateSet,
+  type Exercise,
+  type WorkoutItem,
+} from '../api'
 import { useBodyWeight, useGymSettings } from '../gymSettings'
 import { bodyweightTotal, usesBodyweight, withBodyweight } from '../logic/bodyweight'
 import { nextSet } from '../logic/sets'
-import { isExerciseUnit, TYPE_LABEL, type ExerciseType } from '../logic/types'
-import { formatWeight, SET_HEADERS } from '../logic/display'
+import { isExerciseUnit, TYPE_LABEL, type ExerciseType, type SetValues } from '../logic/types'
+import { formatSet, formatWeight, SET_HEADERS } from '../logic/display'
 import { SetRow } from './SetRow'
 import s from '../Gym.module.css'
 
@@ -16,14 +24,17 @@ type Props = {
   canDown: boolean
   onMove: (dir: -1 | 1) => void
   onSetDone: () => void
+  /** Series de la última vez que hiciste este ejercicio (columna «Anterior»). */
+  previous?: readonly SetValues[]
 }
 
-export function ExerciseCard({ item, exercise, canUp, canDown, onMove, onSetDone }: Props) {
+export function ExerciseCard({ item, exercise, canUp, canDown, onMove, onSetDone, previous = [] }: Props) {
   const { value: cfg } = useGymSettings()
   const updateSet = useUpdateSet()
   const addSet = useAddSet()
   const deleteSet = useDeleteSet()
   const deleteItem = useDeleteItem()
+  const updateItem = useUpdateItem()
   const unit = exercise && isExerciseUnit(exercise.unit) ? exercise.unit : 'reps'
   const name = exercise?.name ?? 'Ejercicio'
   const done = item.sets.filter((x) => x.done).length
@@ -79,6 +90,18 @@ export function ExerciseCard({ item, exercise, canUp, canDown, onMove, onSetDone
           <Trash size={20} />
         </button>
       </div>
+      <textarea
+        key={`${item.id}:${item.notes ?? ''}`}
+        className={s.exNote}
+        rows={1}
+        aria-label={`Nota de ${name}`}
+        placeholder="Añadir nota…"
+        defaultValue={item.notes ?? ''}
+        onBlur={(e) => {
+          const v = e.target.value.trim() || null
+          if (v !== item.notes) updateItem.mutate({ id: item.id, patch: { notes: v } })
+        }}
+      />
       <div className={s.setHead} aria-hidden="true">
         <span>#</span>
         <span className={s.setFields}>
@@ -100,6 +123,7 @@ export function ExerciseCard({ item, exercise, canUp, canDown, onMove, onSetDone
           increment={cfg.weight_increment}
           exerciseName={name}
           bodyweight={bw}
+          previous={previous[i] ? formatSet(unit, previous[i], cfg.weight_unit) : null}
           onChange={(patch) => updateSet.mutate({ id: set.id, patch })}
           onToggleDone={() => {
             // Al marcarla, la carga total se fija con el peso corporal de hoy.

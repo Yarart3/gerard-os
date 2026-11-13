@@ -11,7 +11,18 @@ import type { SetValues } from './logic/types'
 type SetRow = Tables<'sets'>
 type Item = Tables<'workout_items'> & { sets: SetRow[] }
 type Workout = Tables<'workouts'> & { workout_items: Item[] }
-type History = { id: string; date: string }
+type History = {
+  id: string
+  date: string
+  title: string | null
+  started_at: string | null
+  finished_at: string | null
+  duration_min: number | null
+  met_kcal: number | null
+  watch_kcal: number | null
+  notes: string | null
+  items: { id: string; position: number; exercise_id: string; sets: SetValues[] }[]
+}
 
 const stamp = () => ({ created_at: nowIso(), updated_at: nowIso(), user_id: '' })
 
@@ -20,23 +31,33 @@ export type AddItemsVars = {
   workoutId: string
   startedAt: string
   notes?: string
+  title?: string
   items: { id: string; exercise_id: string; position: number; sets: (SetValues & { id: string })[] }[]
 }
 
-/** Fija IDs y posiciones al encolar (leyendo la sesión del día de la caché) para que un reintento sea idéntico. */
+/** Busca un entreno en caché (en curso o abierto para editar). */
+function cachedWorkout(qc: QueryClient, id: string): Workout | null {
+  for (const [, data] of qc.getQueriesData<Workout | null>({ queryKey: ['workout'] })) {
+    if (data?.id === id) return data
+  }
+  return null
+}
+
+/** Fija IDs y posiciones al encolar (leyendo el entreno de la caché) para que un reintento sea idéntico. */
 export function prepareAddItems(
   qc: QueryClient,
   date: string,
-  fallback: Workout | null | undefined,
-  v: { items: { exercise_id: string; sets: SetValues[] }[]; notes?: string },
+  target: Workout | null | undefined,
+  v: { items: { exercise_id: string; sets: SetValues[] }[]; notes?: string; title?: string },
 ): AddItemsVars {
-  const current = qc.getQueryData<Workout | null>(gymKeys.workout(date)) ?? fallback
+  const current = (target && cachedWorkout(qc, target.id)) ?? target
   const start = (current?.workout_items.at(-1)?.position ?? -1) + 1
   return {
-    date,
+    date: current?.date ?? date,
     workoutId: current?.id ?? newId(),
-    startedAt: nowIso(),
+    startedAt: current?.started_at ?? nowIso(),
     notes: v.notes,
+    title: current ? undefined : v.title,
     items: v.items.map((it, i) => ({
       id: newId(),
       exercise_id: it.exercise_id,
@@ -45,6 +66,37 @@ export function prepareAddItems(
     })),
   }
 }
+
+const emptyWorkout = (v: { id: string; date: string; started_at: string; title?: string | null; notes?: string | null }): Workout => ({
+  id: v.id,
+  date: v.date,
+  started_at: v.started_at,
+  title: v.title ?? null,
+  finished_at: null,
+  duration_min: null,
+  met_kcal: null,
+  watch_kcal: null,
+  notes: v.notes ?? null,
+  kind: 'strength',
+  result: null,
+  health_synced_at: null,
+  ...stamp(),
+  workout_items: [],
+})
+
+/** Entreno (con ejercicios) → fila del historial. */
+const toHistory = (w: Workout): History => ({
+  id: w.id,
+  date: w.date,
+  title: w.title,
+  started_at: w.started_at,
+  finished_at: w.finished_at,
+  duration_min: w.duration_min,
+  met_kcal: w.met_kcal,
+  watch_kcal: w.watch_kcal,
+  notes: w.notes,
+  items: w.workout_items.map((i) => ({ id: i.id, position: i.position, exercise_id: i.exercise_id, sets: i.sets })),
+})
 
 /** Aplica `fn` a todas las sesiones en caché (consulta por día) y a la clave `workout` de cada una. */
 function mapWorkouts(qc: QueryClient, fn: (w: Workout) => Workout | null) {
@@ -65,7 +117,12 @@ export function registerGymMutations(qc: QueryClient) {
     key: offlineKeys.gymAddItems,
     invalidate,
     run: async (v) => {
-      await insertOnce('workouts', { id: v.workoutId, date: v.date, started_at: v.startedAt })
+      await insertOnce('workouts', {
+        id: v.workoutId,
+        date: v.date,
+        started_at: v.startedAt,
+        ...(v.title ? { title: v.title } : {}),
+      })
       if (v.notes !== undefined) await updateRow('workouts', v.workoutId, { notes: v.notes })
       await insertOnce(
         'workout_items',
@@ -95,40 +152,57 @@ export function registerGymMutations(qc: QueryClient) {
           (s, position) => ({ ...stamp(), ...s, item_id: it.id, position, done: false }) as SetRow,
         ),
       }))
-      const key = gymKeys.workout(v.date)
-      const cur = c.getQueryData<Workout | null>(key)
+      const cur = cachedWorkout(c, v.workoutId)
       if (cur) {
         if (items.some((i) => cur.workout_items.some((x) => x.id === i.id))) return
-        c.setQueryData<Workout>(key, {
-          ...cur,
-          notes: v.notes ?? cur.notes,
-          workout_items: [...cur.workout_items, ...items],
-        })
+        mapWorkouts(c, (w) =>
+          w.id === v.workoutId
+            ? { ...w, notes: v.notes ?? w.notes, workout_items: [...w.workout_items, ...items] }
+            : w,
+        )
       } else {
-        c.setQueryData<Workout>(key, {
-          id: v.workoutId,
-          date: v.date,
-          started_at: v.startedAt,
-          duration_min: null,
-          met_kcal: null,
-          watch_kcal: null,
-          notes: v.notes ?? null,
-          kind: 'strength',
-          result: null,
-          health_synced_at: null,
-          ...stamp(),
+        c.setQueryData<Workout>(gymKeys.active, {
+          ...emptyWorkout({ id: v.workoutId, date: v.date, started_at: v.startedAt, title: v.title, notes: v.notes }),
           workout_items: items,
         })
       }
     },
   })
 
+  defineOffline<{ id: string; date: string; started_at: string; title: string }>(qc, {
+    key: offlineKeys.gymStartWorkout,
+    invalidate,
+    run: (v) => insertOnce('workouts', v),
+    optimistic: (c, v) => {
+      if (cachedWorkout(c, v.id)) return
+      c.setQueryData<Workout>(gymKeys.active, emptyWorkout(v))
+    },
+  })
+
+  defineOffline<{ id: string; patch: TablesUpdate<'workout_items'> }>(qc, {
+    key: offlineKeys.gymUpdateItem,
+    invalidate,
+    run: ({ id, patch }) => updateRow('workout_items', id, patch),
+    optimistic: (c, { id, patch }) =>
+      mapWorkouts(c, (w) => mapItems(w, (i) => (i.id === id ? ({ ...i, ...patch } as Item) : i))),
+  })
+
   defineOffline<{ id: string; patch: TablesUpdate<'workouts'> }>(qc, {
     key: offlineKeys.gymUpdateWorkout,
     invalidate,
     run: ({ id, patch }) => updateRow('workouts', id, patch),
-    optimistic: (c, { id, patch }) =>
-      mapWorkouts(c, (w) => (w.id === id ? ({ ...w, ...patch } as Workout) : w)),
+    optimistic: (c, { id, patch }) => {
+      mapWorkouts(c, (w) => (w.id === id ? ({ ...w, ...patch } as Workout) : w))
+      // Al terminarlo deja de estar «en curso» y pasa al historial.
+      const active = c.getQueryData<Workout | null>(gymKeys.active)
+      if (active?.id === id && active.finished_at) {
+        c.setQueryData(gymKeys.active, null)
+        mapLists<History>(c, gymKeys.history, (l) => [toHistory(active), ...l.filter((w) => w.id !== id)])
+      }
+      mapLists<History>(c, gymKeys.history, (l) =>
+        l.map((w) => (w.id === id ? { ...w, ...(patch as Partial<History>) } : w)),
+      )
+    },
   })
 
   defineOffline<string>(qc, {

@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { Tables, TablesInsert, TablesUpdate } from '../../lib/database.types'
 import { supabase } from '../../lib/supabase'
-import { withNewId } from '../../lib/offline/ids'
+import { newId, withNewId } from '../../lib/offline/ids'
 import { offlineKeys } from '../../lib/offline/keys'
 import { useOfflineMutation } from '../../lib/offline/useOfflineMutation'
 import { gymKeys } from './keys'
@@ -38,16 +38,18 @@ const sortWorkout = (w: Workout): Workout => ({
     .map((it) => ({ ...it, sets: [...it.sets].sort((a, b) => a.position - b.position) })),
 })
 
-/** Sesión de un día (la primera si hubiera varias). */
-export function useWorkoutOn(date: string) {
+const WORKOUT_SELECT = '*, workout_items(*, sets(*))'
+
+/** Entreno en curso (el más reciente sin terminar), o null. */
+export function useActiveWorkout() {
   return useQuery({
-    queryKey: gymKeys.workout(date),
+    queryKey: gymKeys.active,
     queryFn: async () => {
       const { data, error } = await supabase
         .from('workouts')
-        .select('*, workout_items(*, sets(*))')
-        .eq('date', date)
-        .order('created_at')
+        .select(WORKOUT_SELECT)
+        .is('finished_at', null)
+        .order('created_at', { ascending: false })
         .limit(1)
         .maybeSingle()
       fail(error)
@@ -56,8 +58,24 @@ export function useWorkoutOn(date: string) {
   })
 }
 
+/** Un entreno concreto con sus ejercicios y series. */
+export function useWorkout(id: string | null) {
+  return useQuery({
+    queryKey: gymKeys.workout(id ?? ''),
+    enabled: Boolean(id),
+    queryFn: async () => {
+      const { data, error } = await supabase.from('workouts').select(WORKOUT_SELECT).eq('id', id!).maybeSingle()
+      fail(error)
+      return data ? sortWorkout(data) : null
+    },
+  })
+}
+
 export type HistoryWorkout = Omit<HistWorkout, 'items'> & {
   notes: string | null
+  title: string | null
+  started_at: string | null
+  finished_at: string | null
   items: (HistWorkout['items'][number] & { id: string; position: number })[]
 }
 
@@ -69,7 +87,7 @@ export function useWorkoutHistory() {
       const { data, error } = await supabase
         .from('workouts')
         .select(
-          'id, date, duration_min, met_kcal, watch_kcal, notes, workout_items(id, exercise_id, position, sets(position, weight_kg, added_kg, reps, seconds, meters, calories, done))',
+          'id, date, title, started_at, finished_at, duration_min, met_kcal, watch_kcal, notes, workout_items(id, exercise_id, position, sets(position, weight_kg, added_kg, reps, seconds, meters, calories, done))',
         )
         .order('date', { ascending: false })
         .order('created_at', { ascending: false })
@@ -82,6 +100,9 @@ export function useWorkoutHistory() {
         met_kcal: w.met_kcal,
         watch_kcal: w.watch_kcal,
         notes: w.notes,
+        title: w.title,
+        started_at: w.started_at,
+        finished_at: w.finished_at,
         items: [...w.workout_items]
           .sort((a, b) => a.position - b.position)
           .map((it) => ({
@@ -95,14 +116,23 @@ export function useWorkoutHistory() {
   })
 }
 
-/** Últimas series de un ejercicio en una sesión anterior a `date`. */
+/** Entrenos terminados de un día (del historial, en orden de inicio). */
+export function useDayWorkouts(date: string) {
+  const q = useWorkoutHistory()
+  const list = (q.data ?? [])
+    .filter((w) => w.date === date && w.finished_at)
+    .sort((a, b) => (a.started_at ?? '').localeCompare(b.started_at ?? ''))
+  return { ...q, data: list }
+}
+
+/** Últimas series de un ejercicio en el entreno terminado más reciente (sin contar `excludeId`). */
 export function lastSetsOf(
   history: readonly HistoryWorkout[],
   exerciseId: string,
-  date: string,
+  excludeId?: string,
 ): SetValues[] {
   for (const w of history) {
-    if (w.date >= date) continue
+    if (w.id === excludeId || !w.finished_at) continue
     const item = w.items.find((i) => i.exercise_id === exerciseId)
     if (item?.sets.length) return item.sets
   }
@@ -145,11 +175,25 @@ export function useDeleteExercise() {
 // ---------- Sesiones ----------
 export type NewItem = { exercise_id: string; sets: SetValues[] }
 
-/** Añade ejercicios (al final, en el orden dado) con sus series. Crea la sesión si no existe. Funciona sin red. */
+/** Empieza un entreno vacío (pasa a ser el entreno en curso). Funciona sin red. */
+export function useStartWorkout() {
+  return useOfflineMutation(offlineKeys.gymStartWorkout, (v: { date: string; title: string }) => ({
+    id: newId(),
+    started_at: new Date().toISOString(),
+    ...v,
+  }))
+}
+
+/** Añade ejercicios (al final, en el orden dado) a `workout`; si no hay, empieza uno nuevo. Funciona sin red. */
 export function useAddItems(date: string, workout: Workout | null | undefined) {
-  return useOfflineMutation(offlineKeys.gymAddItems, (v: { items: NewItem[]; notes?: string }, qc) =>
-    prepareAddItems(qc, date, workout, v),
+  return useOfflineMutation(
+    offlineKeys.gymAddItems,
+    (v: { items: NewItem[]; notes?: string; title?: string }, qc) => prepareAddItems(qc, date, workout, v),
   )
+}
+
+export function useUpdateItem() {
+  return useOfflineMutation<{ id: string; patch: TablesUpdate<'workout_items'> }>(offlineKeys.gymUpdateItem)
 }
 
 export function useUpdateWorkout() {

@@ -181,6 +181,7 @@ export type HealthAction =
         watch_kcal: number
         kind: 'strength'
         notes: string
+        finished_at: string
         health_synced_at: string
       }
     }
@@ -231,6 +232,11 @@ export function planHealth(
           watch_kcal: day.activeKcal,
           kind: 'strength',
           notes: day.types.length ? `Apple Watch: ${day.types.join(', ')}` : 'Apple Watch',
+          // Un entreno del Watch llega ya terminado (si no, la app lo tomaría por uno en curso).
+          finished_at:
+            day.durationMin !== null
+              ? new Date(new Date(day.start).getTime() + day.durationMin * 60_000).toISOString()
+              : stamp,
           health_synced_at: stamp,
         },
       })

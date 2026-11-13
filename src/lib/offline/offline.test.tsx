@@ -177,7 +177,7 @@ describe('actualizaciones optimistas sin red', () => {
         ],
       }),
     )
-    const w = qc.getQueryData<Workout>(['workout', date])!
+    const w = qc.getQueryData<Workout>(['workout', 'active'])!
     expect(w.workout_items).toHaveLength(1)
     expect(w.workout_items[0]!.sets).toHaveLength(1)
     const item = w.workout_items[0]!
@@ -185,7 +185,7 @@ describe('actualizaciones optimistas sin red', () => {
     await act(() => result.current.set.mutateAsync({ item_id: item.id, position: 1, weight_kg: 55, reps: 5 }))
     const setId = item.sets[0]!.id
     await act(() => result.current.upd.mutateAsync({ id: setId, patch: { done: true } }))
-    const after = qc.getQueryData<Workout>(['workout', date])!.workout_items[0]!.sets
+    const after = qc.getQueryData<Workout>(['workout', 'active'])!.workout_items[0]!.sets
     expect(after.map((s) => s.done)).toEqual([true, false])
     expect(after).toHaveLength(2)
 
