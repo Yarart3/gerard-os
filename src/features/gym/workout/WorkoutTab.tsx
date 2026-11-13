@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Card, EmptyState, ListRow, useToast } from '../../../components/ui'
 import { Clipboard, Dumbbell, Plus, Repeat } from '../../../components/ui/icons'
 import { formatShortDate } from '../../../lib/dates'
@@ -43,7 +44,16 @@ export function WorkoutTab() {
   const today = useToday()
   const toast = useToast()
   const activeQ = useActiveWorkout()
-  const [editingRaw, setEditingId] = useState<string | null>(null)
+  // El entreno que se edita va en la URL (#/gym?editar=<id>): así se abre también desde Historial
+  // y el botón Atrás vuelve a donde estabas.
+  const [params, setParams] = useSearchParams()
+  const navigate = useNavigate()
+  const editingRaw = params.get('editar')
+  const setEditingId = (id: string | null) => {
+    if (id) setParams({ editar: id })
+    else if ((window.history.state as { idx?: number } | null)?.idx) navigate(-1)
+    else setParams({}, { replace: true })
+  }
   const editQ = useWorkout(editingRaw)
   // Si el entreno que se editaba ya no existe (borrado), se vuelve a la vista inicial.
   const editingId = editingRaw && !(editQ.isSuccess && !editQ.data) ? editingRaw : null
@@ -74,7 +84,10 @@ export function WorkoutTab() {
 
   const add = async (list: Exercise[], notes?: string) => {
     await addItems.mutateAsync({
-      items: list.map((e) => ({ exercise_id: e.id, sets: prefill(e.id, lastSetsOf(history, e.id, workout?.id)) })),
+      items: list.map((e) => ({
+        exercise_id: e.id,
+        sets: prefill(e.id, lastSetsOf(history, e.id, workout?.id, editingId ? workout?.date : undefined)),
+      })),
       notes,
       title: defaultTitle(),
     })
@@ -284,6 +297,17 @@ function WorkoutView({
             </button>
           )}
         </div>
+        {!isLive && (
+          <label className={s.dateRow}>
+            <span className={s.small}>Fecha</span>
+            <input
+              type="date"
+              className="input"
+              value={workout.date}
+              onChange={(e) => e.target.value && onUpdate({ date: e.target.value })}
+            />
+          </label>
+        )}
         <LiveStats workout={workout} isLive={isLive} />
       </div>
 
@@ -301,7 +325,7 @@ function WorkoutView({
           key={item.id}
           item={item}
           exercise={exercises.get(item.exercise_id)}
-          previous={lastSetsOf(history, item.exercise_id, workout.id)}
+          previous={lastSetsOf(history, item.exercise_id, workout.id, isLive ? undefined : workout.date)}
           canUp={i > 0}
           canDown={i < items.length - 1}
           onMove={(dir) => {

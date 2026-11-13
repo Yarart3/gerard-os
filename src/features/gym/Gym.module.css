@@ -458,3 +458,13 @@
   font-size: 15px;
   line-height: 1.4;
 }
+
+.dateRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.dateRow :global(.input) {
+  flex: 1;
+  max-width: 220px;
+}

@@ -127,14 +127,18 @@ export function useDayWorkouts(date: string) {
   return { ...q, data: list }
 }
 
-/** Últimas series de un ejercicio en el entreno terminado más reciente (sin contar `excludeId`). */
+/**
+ * Últimas series de un ejercicio en el entreno terminado más reciente (sin contar `excludeId`).
+ * Con `upTo` (al editar uno pasado) solo mira entrenos de esa fecha o anteriores.
+ */
 export function lastSetsOf(
   history: readonly HistoryWorkout[],
   exerciseId: string,
   excludeId?: string,
+  upTo?: string,
 ): SetValues[] {
   for (const w of history) {
-    if (w.id === excludeId || !w.finished_at) continue
+    if (w.id === excludeId || !w.finished_at || (upTo && w.date > upTo)) continue
     const item = w.items.find((i) => i.exercise_id === exerciseId)
     if (item?.sets.length) return item.sets
   }

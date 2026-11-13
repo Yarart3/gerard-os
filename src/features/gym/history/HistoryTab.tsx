@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Card, EmptyState, ListRow, SegmentedControl, Sheet, useToast } from '../../../components/ui'
 import {
   addDays,
@@ -203,6 +204,7 @@ function SessionSheet({
   const { value: cfg } = useGymSettings()
   const del = useDeleteWorkout()
   const toast = useToast()
+  const navigate = useNavigate()
   if (!workout) return null
   return (
     <Sheet open onClose={onClose} title={workout.title ? `${workout.title} · ${formatShortDate(workout.date)}` : formatLongDate(workout.date)}>
@@ -246,6 +248,16 @@ function SessionSheet({
           <p style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{workout.notes}</p>
         </Card>
       )}
+      <button
+        type="button"
+        className="btn btn-primary"
+        onClick={() => {
+          onClose()
+          navigate(`/gym?editar=${workout.id}`)
+        }}
+      >
+        Editar entreno
+      </button>
       <button
         type="button"
         className="btn"
