@@ -11,7 +11,7 @@ export default function TodayScreen() {
   if (!isLoading && ids.length === 0)
     return (
       <Card>
-        <EmptyState title="Sin tarjetas" text="Activa alguna en los ajustes de Hoy (la rueda de arriba)." />
+        <EmptyState title="Sin tarjetas" text="Actívalas con «Ajustar» (arriba a la derecha)." />
       </Card>
     )
   return (

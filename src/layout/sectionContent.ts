@@ -3,28 +3,13 @@ import type { SectionId } from './sections'
 
 type Lazy<P> = LazyExoticComponent<ComponentType<P>>
 
-/** Pantallas y ajustes ya construidos de cada sección (carga diferida: Recharts pesa). */
-export const SECTION_CONTENT: Partial<
-  Record<SectionId, { Screen: Lazy<{ sub: string }>; Settings?: Lazy<object> }>
-> = {
-  today: {
-    Screen: lazy(() => import('../features/today/TodayScreen')),
-    Settings: lazy(() => import('../features/today/TodaySettingsPanel')),
-  },
-  gym: {
-    Screen: lazy(() => import('../features/gym/GymScreen')),
-    Settings: lazy(() => import('../features/gym/GymSettingsPanel')),
-  },
-  agenda: {
-    Screen: lazy(() => import('../features/agenda/AgendaScreen')),
-    Settings: lazy(() => import('../features/agenda/AgendaSettingsPanel')),
-  },
-  english: {
-    Screen: lazy(() => import('../features/english/EnglishScreen')),
-    Settings: lazy(() => import('../features/english/EnglishSettingsPanel')),
-  },
-  personal: {
-    Screen: lazy(() => import('../features/personal/PersonalScreen')),
-    Settings: lazy(() => import('../features/personal/PersonalSettingsPanel')),
-  },
+/** Pantalla de cada sección (carga diferida: Recharts pesa). Los ajustes viven todos en /ajustes. */
+export const SECTION_CONTENT: Partial<Record<SectionId, { Screen: Lazy<{ sub: string }> }>> = {
+  today: { Screen: lazy(() => import('../features/today/TodayScreen')) },
+  training: { Screen: lazy(() => import('../features/gym/GymScreen')) },
+  food: { Screen: lazy(() => import('../features/nutrition/NutritionScreen')) },
+  agenda: { Screen: lazy(() => import('../features/agenda/AgendaScreen')) },
+  more: { Screen: lazy(() => import('./MoreScreen')) },
+  english: { Screen: lazy(() => import('../features/english/EnglishScreen')) },
+  personal: { Screen: lazy(() => import('../features/personal/PersonalScreen')) },
 }

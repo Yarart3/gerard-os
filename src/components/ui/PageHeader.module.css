@@ -20,17 +20,16 @@
   letter-spacing: -0.02em;
   line-height: 1.15;
 }
-.gear {
-  width: 44px;
-  height: 44px;
-  margin-right: -8px;
-  display: grid;
-  place-items: center;
-  border: 0;
-  border-radius: 50%;
-  background: transparent;
+.adjust {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 4px;
+  margin-right: -4px;
   color: var(--accent);
+  font-size: 17px;
+  font-weight: 500;
 }
-.gear:active {
-  background: var(--fill);
+.adjust:active {
+  opacity: 0.6;
 }

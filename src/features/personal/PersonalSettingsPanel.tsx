@@ -8,7 +8,7 @@ import { usePersonalSettings } from './personalSettings'
 import { KIND_LABEL, WATCH_KINDS } from './logic/watchlist'
 import s from './Personal.module.css'
 
-/** Ajustes de Personal (CLAUDE.md §8) dentro del Sheet de la rueda. */
+/** Ajustes de Personal (CLAUDE.md §8) en la página única de Ajustes. */
 export default function PersonalSettingsPanel() {
   const toast = useToast()
   const cfg = usePersonalSettings()

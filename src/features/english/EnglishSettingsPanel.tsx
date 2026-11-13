@@ -9,7 +9,7 @@ import { ProfileForm } from './ProfileForm'
 import { SPEEDS, englishVoices } from './speech'
 import s from './English.module.css'
 
-/** Ajustes de Inglés (CLAUDE.md §8) dentro del Sheet de la rueda. */
+/** Ajustes de Inglés (CLAUDE.md §8) en la página única de Ajustes. */
 export default function EnglishSettingsPanel() {
   const toast = useToast()
   const cfg = useEnglishSettings()

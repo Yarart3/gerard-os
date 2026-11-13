@@ -147,7 +147,7 @@ export function CalendarTab() {
         <Card>
           <EmptyState
             title="Aún no hay calendarios"
-            text="Abre los ajustes de Agenda (rueda) y pulsa «Descubrir calendarios» para traer los de iCloud."
+            text="Pulsa «Ajustar» (arriba) y luego «Descubrir calendarios» para traer los de iCloud."
           />
         </Card>
       ) : view === 'month' ? (

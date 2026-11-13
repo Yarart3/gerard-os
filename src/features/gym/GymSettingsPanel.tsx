@@ -71,15 +71,32 @@ function TextList({
   )
 }
 
-/** Ajustes de Gym (CLAUDE.md §8) dentro del Sheet de la rueda. */
+type Part = 'training' | 'nutrition'
+
+/** Ajustes de Entreno (CLAUDE.md §8) en la página de Ajustes. */
 export default function GymSettingsPanel() {
+  return <Panel part="training" />
+}
+
+/** Ajustes de Comida: objetivos, macros y comidas del día (se guardan en la misma fila `gym`). */
+export function NutritionSettingsPanel() {
+  return <Panel part="nutrition" />
+}
+
+function Panel({ part }: { part: Part }) {
   const gym = useGymSettings()
   const general = useGeneralSettings()
   if (gym.isLoading || general.isLoading) return <p className={s.muted}>Cargando…</p>
-  return <Form key={JSON.stringify([gym.value, general.value.profile.weight_kg])} />
+  // Cada parte se reinicia solo cuando cambia lo suyo (así editar una no borra lo pendiente de la otra).
+  const { nutrition, ...training } = gym.value
+  const key =
+    part === 'nutrition'
+      ? JSON.stringify(nutrition)
+      : JSON.stringify([training, general.value.profile.weight_kg])
+  return <Form key={key} part={part} />
 }
 
-function Form() {
+function Form({ part }: { part: Part }) {
   const gym = useGymSettings()
   const general = useGeneralSettings()
   const toast = useToast()
@@ -92,11 +109,17 @@ function Form() {
 
   const save = async () => {
     try {
+      // Guarda solo su parte sobre lo último guardado, sin pisar la otra.
+      if (part === 'nutrition') {
+        await gym.save({ ...gym.value, nutrition: v.nutrition })
+        toast('Ajustes de Comida guardados')
+        return
+      }
       const restSeconds = parseDuration(rest) ?? v.rest_seconds
-      await gym.save({ ...v, rest_seconds: restSeconds })
+      await gym.save({ ...v, nutrition: gym.value.nutrition, rest_seconds: restSeconds })
       if (weight !== general.value.profile.weight_kg)
         await general.save({ ...general.value, profile: { ...general.value.profile, weight_kg: weight } })
-      toast('Ajustes de Gym guardados')
+      toast('Ajustes de Entreno guardados')
     } catch {
       toast('No se han podido guardar', 'error')
     }
@@ -107,102 +130,109 @@ function Form() {
 
   return (
     <>
-      <Card title="Entreno">
-        <div className={s.form}>
-          <div className={`field ${s.full}`}>
-            <span className="field-label">Unidades de peso</span>
-            <SegmentedControl
-              label="Unidades de peso"
-              options={UNITS}
-              value={v.weight_unit}
-              onChange={(u) => set('weight_unit', u)}
-            />
-          </div>
-          <label className="field">
-            <span className="field-label">Incremento ({v.weight_unit})</span>
-            <NumberInput
-              value={v.weight_increment}
-              onCommit={(x) => set('weight_increment', x && x > 0 ? x : 2.5)}
-            />
-          </label>
-          <label className="field">
-            <span className="field-label">Descanso (m:ss)</span>
-            <input
-              className="input"
-              inputMode="numeric"
-              value={rest}
-              onChange={(e) => setRest(e.target.value)}
-            />
-          </label>
-        </div>
-      </Card>
+      {part === 'training' && (
+        <>
+          <Card title="Entreno">
+            <div className={s.form}>
+              <div className={`field ${s.full}`}>
+                <span className="field-label">Unidades de peso</span>
+                <SegmentedControl
+                  label="Unidades de peso"
+                  options={UNITS}
+                  value={v.weight_unit}
+                  onChange={(u) => set('weight_unit', u)}
+                />
+              </div>
+              <label className="field">
+                <span className="field-label">Incremento ({v.weight_unit})</span>
+                <NumberInput
+                  value={v.weight_increment}
+                  onCommit={(x) => set('weight_increment', x && x > 0 ? x : 2.5)}
+                />
+              </label>
+              <label className="field">
+                <span className="field-label">Descanso (m:ss)</span>
+                <input
+                  className="input"
+                  inputMode="numeric"
+                  value={rest}
+                  onChange={(e) => setRest(e.target.value)}
+                />
+              </label>
+            </div>
+          </Card>
 
-      <Card title="Calorías">
-        <div className={s.form}>
-          <label className={`field ${s.full}`}>
-            <span className="field-label">Peso corporal (kg) · se comparte con tu perfil</span>
-            <NumberInput value={weight} onCommit={setWeight} placeholder="0,0" />
-          </label>
-          {EXERCISE_TYPES.map((t) => (
-            <label key={t} className="field">
-              <span className="field-label">MET {TYPE_LABEL[t].toLowerCase()}</span>
-              <NumberInput
-                decimals={1}
-                value={v.met[t]}
-                onCommit={(x) => set('met', { ...v.met, [t]: x && x > 0 ? x : gym.value.met[t] })}
-              />
+          <Card title="Calorías">
+            <div className={s.form}>
+              <label className={`field ${s.full}`}>
+                <span className="field-label">Peso corporal (kg) · se comparte con tu perfil</span>
+                <NumberInput value={weight} onCommit={setWeight} placeholder="0,0" />
+              </label>
+              {EXERCISE_TYPES.map((t) => (
+                <label key={t} className="field">
+                  <span className="field-label">MET {TYPE_LABEL[t].toLowerCase()}</span>
+                  <NumberInput
+                    decimals={1}
+                    value={v.met[t]}
+                    onCommit={(x) => set('met', { ...v.met, [t]: x && x > 0 ? x : gym.value.met[t] })}
+                  />
+                </label>
+              ))}
+              <p className={`${s.small} ${s.full}`} style={{ margin: 0 }}>
+                kcal = MET × 3,5 × peso / 200 × minutos. Cada ejercicio puede tener su propio MET en el
+                Catálogo.
+              </p>
+            </div>
+          </Card>
+
+          <HealthCard />
+
+          <Card title="Tipos y grupos musculares">
+            <p className={s.small} style={{ margin: '0 0 10px' }}>
+              Tipos (fijos): {EXERCISE_TYPES.map((t) => TYPE_LABEL[t]).join(', ')}.
+            </p>
+            <TextList
+              items={v.muscle_groups}
+              onChange={(x) => set('muscle_groups', x)}
+              label="Nuevo grupo muscular"
+            />
+          </Card>
+        </>
+      )}
+
+      {part === 'nutrition' && (
+        <Card title="Objetivos">
+          <div className={s.form}>
+            <label className={`field ${s.full}`}>
+              <span className="field-label">Objetivo diario (kcal)</span>
+              <NumberInput decimals={0} value={n.kcal} onCommit={(x) => setNut('kcal', x ?? 0)} />
             </label>
-          ))}
-          <p className={`${s.small} ${s.full}`} style={{ margin: 0 }}>
-            kcal = MET × 3,5 × peso / 200 × minutos. Cada ejercicio puede tener su propio MET en el Catálogo.
-          </p>
-        </div>
-      </Card>
-
-      <HealthCard />
-
-      <Card title="Tipos y grupos musculares">
-        <p className={s.small} style={{ margin: '0 0 10px' }}>
-          Tipos (fijos): {EXERCISE_TYPES.map((t) => TYPE_LABEL[t]).join(', ')}.
-        </p>
-        <TextList
-          items={v.muscle_groups}
-          onChange={(x) => set('muscle_groups', x)}
-          label="Nuevo grupo muscular"
-        />
-      </Card>
-
-      <Card title="Nutrición">
-        <div className={s.form}>
-          <label className={`field ${s.full}`}>
-            <span className="field-label">Objetivo diario (kcal)</span>
-            <NumberInput decimals={0} value={n.kcal} onCommit={(x) => setNut('kcal', x ?? 0)} />
-          </label>
-          <label className="field">
-            <span className="field-label">Proteína (g)</span>
-            <NumberInput decimals={0} value={n.protein} onCommit={(x) => setNut('protein', x ?? 0)} />
-          </label>
-          <label className="field">
-            <span className="field-label">Carbohidratos (g)</span>
-            <NumberInput decimals={0} value={n.carbs} onCommit={(x) => setNut('carbs', x ?? 0)} />
-          </label>
-          <label className="field">
-            <span className="field-label">Grasa (g)</span>
-            <NumberInput decimals={0} value={n.fat} onCommit={(x) => setNut('fat', x ?? 0)} />
-          </label>
-          <label className="field">
-            <span className="field-label">Fibra (g)</span>
-            <NumberInput decimals={0} value={n.fiber} onCommit={(x) => setNut('fiber', x ?? 0)} />
-          </label>
-          <p className={`${s.small} ${s.full}`} style={{ margin: 0 }}>
-            Los macros suman {formatNumber(fromMacros, 0)} kcal (4/4/9).
-          </p>
-          <div className={`field ${s.full}`}>
-            <span className="field-label">Comidas del día</span>
-            <TextList items={n.slots} onChange={(x) => setNut('slots', x)} label="Nueva comida" />
+            <label className="field">
+              <span className="field-label">Proteína (g)</span>
+              <NumberInput decimals={0} value={n.protein} onCommit={(x) => setNut('protein', x ?? 0)} />
+            </label>
+            <label className="field">
+              <span className="field-label">Carbohidratos (g)</span>
+              <NumberInput decimals={0} value={n.carbs} onCommit={(x) => setNut('carbs', x ?? 0)} />
+            </label>
+            <label className="field">
+              <span className="field-label">Grasa (g)</span>
+              <NumberInput decimals={0} value={n.fat} onCommit={(x) => setNut('fat', x ?? 0)} />
+            </label>
+            <label className="field">
+              <span className="field-label">Fibra (g)</span>
+              <NumberInput decimals={0} value={n.fiber} onCommit={(x) => setNut('fiber', x ?? 0)} />
+            </label>
+            <p className={`${s.small} ${s.full}`} style={{ margin: 0 }}>
+              Los macros suman {formatNumber(fromMacros, 0)} kcal (4/4/9).
+            </p>
+            <div className={`field ${s.full}`}>
+              <span className="field-label">Comidas del día</span>
+              <TextList items={n.slots} onChange={(x) => setNut('slots', x)} label="Nueva comida" />
+            </div>
           </div>
-        </div>
-      </Card>
+        </Card>
+      )}
 
       <button
         type="button"
@@ -210,7 +240,7 @@ function Form() {
         onClick={save}
         disabled={gym.saving || general.saving}
       >
-        Guardar ajustes de Gym
+        {part === 'nutrition' ? 'Guardar ajustes de Comida' : 'Guardar ajustes de Entreno'}
       </button>
     </>
   )

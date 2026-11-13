@@ -9,7 +9,7 @@ import { ToastProvider } from '../../components/ui'
 import { useAddItems, useAddSet, useUpdateSet, type Workout } from '../../features/gym/api'
 import { useAddMealItem } from '../../features/nutrition/api'
 import { useDeleteNote, useSaveNote, type Note } from '../../features/personal/api'
-import { GeneralSettingsPage } from '../../features/settings/GeneralSettingsPage'
+import SettingsPage from '../../features/settings/SettingsPage'
 import { SyncStatus } from '../../layout/SyncStatus'
 import { fakeOfflineSupabase, server } from '../../test/offlineSupabase'
 import { createQueryClient } from '../queryClient'
@@ -254,7 +254,7 @@ describe('aviso de cambios pendientes', () => {
     await waitFor(() => expect(countUnsynced(qc)).toBe(2))
 
     const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(false)
-    render(<GeneralSettingsPage />, { wrapper: wrap(qc) })
+    render(<SettingsPage />, { wrapper: wrap(qc) })
     await userEvent.click(screen.getByText('Cerrar sesión'))
     expect(confirmSpy).toHaveBeenCalledWith(expect.stringContaining('2 cambios sin sincronizar'))
     expect(fakeOfflineSupabase.auth.signOut).not.toHaveBeenCalled()
@@ -267,7 +267,7 @@ describe('aviso de cambios pendientes', () => {
   it('sin cambios pendientes no pregunta', async () => {
     const qc = makeClient()
     const confirmSpy = vi.spyOn(window, 'confirm')
-    render(<GeneralSettingsPage />, { wrapper: wrap(qc) })
+    render(<SettingsPage />, { wrapper: wrap(qc) })
     await userEvent.click(screen.getByText('Cerrar sesión'))
     expect(confirmSpy).not.toHaveBeenCalled()
     confirmSpy.mockRestore()

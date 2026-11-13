@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { ToastProvider } from '../../components/ui'
+import SettingsPage from '../settings/SettingsPage'
 import { SectionScreen } from '../../layout/SectionScreen'
 import { SECTIONS } from '../../layout/sections'
 
@@ -18,6 +19,7 @@ function renderAt(path: string) {
         <MemoryRouter initialEntries={[path]}>
           <Routes>
             <Route path="ingles/:sub?" element={<SectionScreen section={english} />} />
+            <Route path="ajustes" element={<SettingsPage />} />
           </Routes>
         </MemoryRouter>
       </ToastProvider>
@@ -42,9 +44,9 @@ describe('Inglés', () => {
     expect(await screen.findByText('I usually train in the morning.')).toBeInTheDocument()
   })
 
-  it('la rueda abre los ajustes de Inglés', async () => {
+  it('«Ajustar» lleva a su apartado en Ajustes de Inglés', async () => {
     renderAt('/ingles')
-    await userEvent.click(await screen.findByRole('button', { name: 'Ajustes de Inglés' }))
+    await userEvent.click(await screen.findByRole('link', { name: 'Ajustar Inglés' }))
     expect(await screen.findByText('Objetivo diario')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Probar IA' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Reiniciar progreso' })).toBeInTheDocument()

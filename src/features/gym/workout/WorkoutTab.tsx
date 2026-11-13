@@ -44,7 +44,7 @@ export function WorkoutTab() {
   const today = useToday()
   const toast = useToast()
   const activeQ = useActiveWorkout()
-  // El entreno que se edita va en la URL (#/gym?editar=<id>): así se abre también desde Historial
+  // El entreno que se edita va en la URL (#/entreno?editar=<id>): así se abre también desde Historial
   // y el botón Atrás vuelve a donde estabas.
   const [params, setParams] = useSearchParams()
   const navigate = useNavigate()

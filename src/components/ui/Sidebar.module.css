@@ -60,3 +60,12 @@
   background: var(--tab);
   border-radius: var(--radius-card);
 }
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.sub {
+  padding-left: 28px;
+  font-size: 14px;
+}

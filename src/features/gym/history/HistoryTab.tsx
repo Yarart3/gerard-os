@@ -253,7 +253,7 @@ function SessionSheet({
         className="btn btn-primary"
         onClick={() => {
           onClose()
-          navigate(`/gym?editar=${workout.id}`)
+          navigate(`/entreno?editar=${workout.id}`)
         }}
       >
         Editar entreno

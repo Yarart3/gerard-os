@@ -1,36 +1,63 @@
-import { Suspense, useState } from 'react'
-import { Navigate, useNavigate, useParams } from 'react-router-dom'
+import { Suspense } from 'react'
+import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { Card, ChipScroller, EmptyState, PageHeader, SegmentedControl } from '../components/ui'
 import { fromISO } from '../lib/dates'
 import { useToday } from '../lib/useToday'
-import { SectionSettingsSheet } from '../features/settings/SectionSettingsSheet'
 import { SECTION_CONTENT } from './sectionContent'
 import type { SectionDef } from './sections'
 import s from './Page.module.css'
+
+// Último apartado de cada sección: al volver desde la barra de pestañas se abre ese.
+const LAST_KEY = (id: string) => `hub.lastSub.${id}`
+const readLast = (id: string) => {
+  try {
+    return localStorage.getItem(LAST_KEY(id))
+  } catch {
+    return null
+  }
+}
+const writeLast = (id: string, v: string) => {
+  try {
+    localStorage.setItem(LAST_KEY(id), v)
+  } catch {
+    /* sin almacenamiento: no pasa nada */
+  }
+}
 
 /** Pantalla genérica de sección: cabecera, subnavegación y contenido (vacío si aún no está construido). */
 export function SectionScreen({ section }: { section: SectionDef }) {
   const { sub } = useParams()
   const navigate = useNavigate()
-  const [settingsOpen, setSettingsOpen] = useState(false)
+  const location = useLocation()
   const today = useToday()
   const options = section.subnav?.options ?? []
   const first = options[0]?.value
   const current = options.find((o) => o.value === sub)
 
   if (sub && !current) return <Navigate to={section.path} replace />
+  // Desde la barra de pestañas (y sin parámetros como ?editar=), vuelve al último apartado usado.
+  const fromTab = (location.state as { fromTab?: boolean } | null)?.fromTab
+  if (!sub && fromTab && !location.search) {
+    const last = readLast(section.id)
+    if (last && last !== first && options.some((o) => o.value === last))
+      return <Navigate to={`${section.path}/${last}`} replace />
+  }
   const active = current?.value ?? first
   const activeLabel = current?.label ?? options[0]?.label ?? section.label
   const content = SECTION_CONTENT[section.id]
   const loading = <p className={s.loading}>Cargando…</p>
-  const go = (v: string) => navigate(v === first ? section.path : `${section.path}/${v}`, { replace: true })
+  const go = (v: string) => {
+    writeLast(section.id, v)
+    navigate(v === first ? section.path : `${section.path}/${v}`, { replace: true })
+  }
+  if (active && options.length) writeLast(section.id, active)
 
   return (
     <div className={s.page}>
       <PageHeader
         title={section.label}
-        onSettings={() => setSettingsOpen(true)}
-        settingsLabel={`Ajustes de ${section.label}`}
+        settingsTo={section.settings ? `/ajustes?s=${section.settings}` : undefined}
+        settingsLabel={`Ajustar ${section.label}`}
         date={noonOf(today)}
       />
       {section.subnav && active && (
@@ -64,17 +91,6 @@ export function SectionScreen({ section }: { section: SectionDef }) {
           />
         </Card>
       )}
-      <SectionSettingsSheet
-        open={settingsOpen}
-        onClose={() => setSettingsOpen(false)}
-        sectionLabel={section.label}
-      >
-        {content?.Settings && (
-          <Suspense fallback={loading}>
-            <content.Settings />
-          </Suspense>
-        )}
-      </SectionSettingsSheet>
     </div>
   )
 }

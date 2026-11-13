@@ -150,3 +150,34 @@ export const Barcode = (p: IconProps) => (
     <path d="M8 9v6M11 9v6M14 9v6M16.5 9v6" />
   </Svg>
 )
+export const Fork = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M7 3v8M4.5 3v5a2.5 2.5 0 0 0 5 0V3M7 11v10M17 21V3c-2.2 0-3.5 2.5-3.5 6v4h3.5" />
+  </Svg>
+)
+export const Grid = (p: IconProps) => (
+  <Svg {...p}>
+    <rect x="4" y="4" width="6.5" height="6.5" rx="1.8" />
+    <rect x="13.5" y="4" width="6.5" height="6.5" rx="1.8" />
+    <rect x="4" y="13.5" width="6.5" height="6.5" rx="1.8" />
+    <rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.8" />
+  </Svg>
+)
+export const Wallet = (p: IconProps) => (
+  <Svg {...p}>
+    <rect x="3.5" y="6" width="17" height="13" rx="3" />
+    <path d="M3.5 10h17M16 14.5h1.5" />
+  </Svg>
+)
+export const Film = (p: IconProps) => (
+  <Svg {...p}>
+    <rect x="3.5" y="4.5" width="17" height="15" rx="2.5" />
+    <path d="M8 4.5v15M16 4.5v15M3.5 9.5H8M3.5 14.5H8M16 9.5h4.5M16 14.5h4.5" />
+  </Svg>
+)
+export const Note = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M6 3.5h8.5L19 8v12.5H6z" />
+    <path d="M14 3.5V8h5M9 12.5h7M9 16h5" />
+  </Svg>
+)

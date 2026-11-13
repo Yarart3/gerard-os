@@ -132,7 +132,7 @@ function WorkoutCard({ today }: { today: string }) {
     <Card title="Entreno de hoy" flush>
       {live && (
         <ListRow
-          to="/gym"
+          to="/entreno"
           title={`En curso: ${live.title ?? 'Entreno'}`}
           subtitle={
             live.workout_items.length
@@ -144,7 +144,7 @@ function WorkoutCard({ today }: { today: string }) {
       {done.map((w) => (
         <ListRow
           key={w.id}
-          to="/gym"
+          to="/entreno"
           title={w.title ?? 'Entreno'}
           subtitle={exList(w.items.map((i) => i.exercise_id)) || undefined}
           value={w.duration_min ? `${w.duration_min} min` : undefined}
@@ -152,7 +152,7 @@ function WorkoutCard({ today }: { today: string }) {
       ))}
       {!live && !done.length && (
         <ListRow
-          to="/gym"
+          to="/entreno"
           title={active.isLoading || day.isLoading ? 'Cargando…' : 'Sin entreno hoy'}
           subtitle="Empezar un entreno"
         />

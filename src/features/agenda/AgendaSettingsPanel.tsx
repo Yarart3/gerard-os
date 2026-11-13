@@ -22,7 +22,7 @@ const FIRST_DAY = [
   { value: '7', label: 'Domingo' },
 ] as const
 
-/** Ajustes de Agenda (CLAUDE.md §8) dentro del Sheet de la rueda. */
+/** Ajustes de Agenda (CLAUDE.md §8) en la página única de Ajustes. */
 export default function AgendaSettingsPanel() {
   const toast = useToast()
   const cfg = useAgendaSettings()

@@ -45,7 +45,7 @@ function Form({
     try {
       if (editing) await update.mutateAsync({ event_id: editing.id, event: r.payload })
       else {
-        if (!calendarId) return toast('Descubre tus calendarios en Ajustes de Agenda', 'error')
+        if (!calendarId) return toast('Descubre tus calendarios en Ajustes › Agenda', 'error')
         await create.mutateAsync({ calendar_id: calendarId, event: r.payload })
       }
       toast(editing ? 'Evento guardado en iCloud' : 'Evento creado en iCloud')

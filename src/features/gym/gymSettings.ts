@@ -63,7 +63,7 @@ export function useGymSettings() {
   return { ...s, value: mergeGymSettings(s.value) }
 }
 
-/** Peso corporal: vive en el perfil de Ajustes generales (una sola fuente de verdad). */
+/** Peso corporal: vive en el perfil de Ajustes (una sola fuente de verdad). */
 export function useBodyWeight(): number | null {
   return useGeneralSettings().value.profile.weight_kg
 }

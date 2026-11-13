@@ -3,6 +3,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { ToastProvider } from '../../components/ui'
+import SettingsPage from '../settings/SettingsPage'
 import { SectionScreen } from '../../layout/SectionScreen'
 import { SECTIONS } from '../../layout/sections'
 
@@ -18,6 +19,7 @@ function renderAt(path: string) {
         <MemoryRouter initialEntries={[path]}>
           <Routes>
             <Route path="agenda/:sub?" element={<SectionScreen section={agenda} />} />
+            <Route path="ajustes" element={<SettingsPage />} />
           </Routes>
         </MemoryRouter>
       </ToastProvider>
@@ -41,9 +43,9 @@ describe('Agenda', () => {
     expect(screen.getByText('Sin hitos')).toBeInTheDocument()
   })
 
-  it('la rueda abre los ajustes con Probar conexión', async () => {
+  it('«Ajustar» lleva a su apartado en Ajustes con Probar conexión', async () => {
     renderAt('/agenda')
-    await userEvent.click(screen.getByRole('button', { name: 'Ajustes de Agenda' }))
+    await userEvent.click(screen.getByRole('link', { name: 'Ajustar Agenda' }))
     expect(await screen.findByRole('button', { name: 'Probar conexión' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Descubrir calendarios' })).toBeInTheDocument()
   })

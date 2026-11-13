@@ -1,11 +1,11 @@
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
-import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { lazy, Suspense } from 'react'
+import { HashRouter, Navigate, Route, Routes, useParams } from 'react-router-dom'
 import { ToastProvider } from './components/ui'
 import { UiGallery } from './dev/UiGallery'
 import { AuthProvider } from './features/auth/AuthProvider'
 import { LoginPage } from './features/auth/LoginPage'
 import { RequireAuth } from './features/auth/RequireAuth'
-import { GeneralSettingsPage } from './features/settings/GeneralSettingsPage'
 import { CutoffSync } from './features/today/CutoffSync'
 import { ThemeSync } from './features/settings/ThemeSync'
 import { AppLayout } from './layout/AppLayout'
@@ -15,6 +15,15 @@ import { persistOptions } from './lib/offline/persister'
 import { registerOfflineMutations } from './lib/offline/register'
 import { resumeOfflineQueue } from './lib/offline/restore'
 import { queryClient } from './lib/queryClient'
+
+const SettingsPage = lazy(() => import('./features/settings/SettingsPage'))
+
+// Rutas antiguas de Gym (antes de separar Entreno y Comida).
+const GYM_REDIRECT: Record<string, string> = { historial: '/entreno/historial', catalogo: '/entreno/catalogo', nutricion: '/comida' }
+function OldGym() {
+  const { sub } = useParams()
+  return <Navigate to={(sub && GYM_REDIRECT[sub]) || '/entreno'} replace />
+}
 
 // Antes de restaurar la caché: las mutaciones pausadas recuperan su función por mutationKey.
 registerOfflineMutations(queryClient)
@@ -53,7 +62,15 @@ export function App() {
                       />
                     ),
                   )}
-                  <Route path="ajustes" element={<GeneralSettingsPage />} />
+                  <Route path="gym/:sub?" element={<OldGym />} />
+                  <Route
+                    path="ajustes"
+                    element={
+                      <Suspense fallback={null}>
+                        <SettingsPage />
+                      </Suspense>
+                    }
+                  />
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Route>
               </Route>

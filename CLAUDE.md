@@ -61,7 +61,7 @@ Todo debe costar **0 €**.
 
 **Forma y espaciado:** tarjetas con radio 18 y padding 16; inputs con radio 10–12 y altura 44; botón principal con radio 14 y altura 50; separador de filas 0.5px `--line`; margen lateral 16; espacio entre tarjetas 16.
 
-**Componentes base:** `Card`, `ListRow` (con chevron), `Pill`, `ProgressBar`, `SegmentedControl`, `ChipScroller`, `Sheet` (panel inferior con asa), `TabBar`, `Sidebar`, `PageHeader` (fecha + título grande + rueda ⚙️), `EmptyState`, `Toast`.
+**Componentes base:** `Card`, `ListRow` (con chevron), `Pill`, `ProgressBar`, `SegmentedControl`, `ChipScroller`, `Sheet` (panel inferior con asa), `TabBar`, `Sidebar`, `PageHeader` (fecha + título grande + enlace «Ajustar»), `EmptyState`, `Toast`.
 
 **Iconos:** SVG de trazo 1.8 (estilo SF Symbols). Sin emojis en la interfaz.
 
@@ -70,10 +70,12 @@ Todo debe costar **0 €**.
 **Accesibilidad:** contraste ≥ 4.5:1, objetivos táctiles ≥ 44px, `<button>`/`<a>`/`<label>` reales, `aria-label` en los botones que solo tienen icono.
 
 ## 5. Navegación
-- **Móvil (<900px):** barra inferior con 5 pestañas: **Hoy · Gym · Agenda · Inglés · Personal**.
-- **Escritorio:** barra lateral con las mismas 5 secciones y **Ajustes** fijo abajo. El contenido va en una cuadrícula con `max-width: 1100px`.
-- **Rueda ⚙️** arriba a la derecha en todas las pantallas: abre un `Sheet` con los ajustes **de esa sección** y, al final, "Ajustes generales".
-- Las subsecciones son un `SegmentedControl` (Gym: Entreno · Historial · Catálogo · Nutrición; Agenda: Calendario · Uni; Personal: Gastos · Watchlist · Notas) o un `ChipScroller` (Inglés: 7 secciones).
+- **Pestañas (móvil <900px, barra inferior):** **Hoy · Entreno · Comida · Agenda · Más**. «Más» agrupa Inglés, Personal (Gastos, Watchlist, Notas) y Ajustes.
+- **Escritorio:** barra lateral con las mismas pestañas (bajo «Más», Inglés y Personal) y **Ajustes** fijo abajo. Contenido con `max-width: 1100px`.
+- **Rutas:** `/` Hoy · `/entreno/:sub?` (Entreno · Historial · Catálogo) · `/comida/:sub?` (Diario · Semana · Alimentos · Recetas) · `/agenda/:sub?` (Calendario · Uni) · `/mas` · `/ingles/:sub?` (`ChipScroller`, 7 apartados) · `/personal/:sub?` (Gastos · Watchlist · Notas) · `/ajustes`. `/gym/*` redirige (rutas antiguas). Definidas en `src/layout/sections.ts` (`SECTIONS`, `NAV`).
+- **Ajustes:** una sola página (`features/settings/SettingsPage.tsx`) con apartados Perfil · Apariencia · Hoy · Entreno · Comida · Agenda · Inglés · Personal · Datos y cuenta, índice de chips y buscador por palabras clave. **No hay rueda ⚙️:** cada pantalla tiene un enlace «Ajustar» arriba a la derecha que abre `#/ajustes?s=<apartado>`.
+- **Recordar apartado:** al tocar una pestaña (barra inferior o lateral, `state.fromTab`) se vuelve al último apartado usado (`localStorage hub.lastSub.<sección>`); los enlaces directos abren el apartado por defecto.
+- **Botón + rápido** (`layout/QuickAdd.tsx`, flotante salvo en Ajustes; hojas con carga diferida): Comida (sugiere la comida según la hora, `suggestedSlot`), Empezar/Seguir entreno, Gasto y Nota.
 - **Idioma de la interfaz: castellano.** Formatos españoles: `1.840 kcal`, `102,5 kg`, `24,30 €`, semana de lunes a domingo, zona horaria Europe/Madrid.
 
 ## 6. Contenido de cada sección
@@ -164,7 +166,7 @@ Guarda las respuestas en la tabla `english_profile`.
 - Al terminar de construir la sección: resume cada parte y pregunta qué cambiar.
 - **Prompts de la IA:** pide JSON estricto con un esquema validado con Zod en el cliente; si el JSON no es válido, se reintenta una vez.
 
-## 8. Ajustes (Sheet por sección + generales)
+## 8. Ajustes (página única, ver §5)
 - **Generales:**
   - Tema; perfil (nombre, peso, altura, fecha de nacimiento)
   - Exportar todo (JSON/CSV) e importar

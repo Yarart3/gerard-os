@@ -14,7 +14,7 @@ import {
   useToast,
 } from '../components/ui'
 import { Calendar, Dumbbell } from '../components/ui/icons'
-import { SECTIONS } from '../layout/sections'
+import { NAV, SECTIONS } from '../layout/sections'
 import { formatEuros, formatKcal, formatKg } from '../lib/format'
 import s from './UiGallery.module.css'
 
@@ -23,7 +23,7 @@ const SEG = [
   { value: 'b', label: 'Historial' },
   { value: 'c', label: 'Catálogo' },
 ] as const
-const CHIPS = SECTIONS[3]?.subnav?.options ?? []
+const CHIPS = SECTIONS.find((x) => x.id === 'english')?.subnav?.options ?? []
 
 function Gallery({ theme }: { theme: 'light' | 'dark' }) {
   const toast = useToast()
@@ -32,7 +32,7 @@ function Gallery({ theme }: { theme: 'light' | 'dark' }) {
   const [sheet, setSheet] = useState(false)
   return (
     <div className={s.column} data-theme={theme}>
-      <PageHeader title={theme === 'light' ? 'Claro' : 'Oscuro'} onSettings={() => setSheet(true)} />
+      <PageHeader title={theme === 'light' ? 'Claro' : 'Oscuro'} settingsTo="/ajustes" />
 
       <Card title="Card · Pill · ProgressBar" action={<Pill tone="accent">Hoy</Pill>}>
         <div className={s.row}>
@@ -90,10 +90,10 @@ function Gallery({ theme }: { theme: 'light' | 'dark' }) {
       </Card>
 
       <Card title="TabBar">
-        <TabBar items={SECTIONS} preview />
+        <TabBar items={NAV} preview />
       </Card>
       <Card title="Sidebar">
-        <Sidebar items={SECTIONS} preview />
+        <Sidebar items={NAV} preview />
       </Card>
 
       <Sheet open={sheet} onClose={() => setSheet(false)} title="Sheet de ejemplo" theme={theme}>

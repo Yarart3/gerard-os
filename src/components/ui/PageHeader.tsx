@@ -1,26 +1,27 @@
+import { Link } from 'react-router-dom'
 import { formatDateLabel } from '../../lib/format'
-import { Gear } from './icons'
 import s from './PageHeader.module.css'
 
 type Props = {
   title: string
-  onSettings?: () => void
+  /** Enlace «Ajustar» al apartado de esta pantalla en la página de Ajustes. */
+  settingsTo?: string
   settingsLabel?: string
   date?: Date | null // null oculta la fecha
 }
 
-/** Fecha en mayúsculas + título grande + rueda de ajustes. */
-export function PageHeader({ title, onSettings, settingsLabel = 'Ajustes', date }: Props) {
+/** Fecha en mayúsculas + título grande + enlace «Ajustar». */
+export function PageHeader({ title, settingsTo, settingsLabel, date }: Props) {
   return (
     <header className={s.header}>
       <div>
         {date !== null && <p className={s.date}>{formatDateLabel(date ?? new Date())}</p>}
         <h1 className={s.title}>{title}</h1>
       </div>
-      {onSettings && (
-        <button type="button" className={s.gear} onClick={onSettings} aria-label={settingsLabel}>
-          <Gear size={24} />
-        </button>
+      {settingsTo && (
+        <Link to={settingsTo} className={s.adjust} aria-label={settingsLabel}>
+          Ajustar
+        </Link>
       )}
     </header>
   )

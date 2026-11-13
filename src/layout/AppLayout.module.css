@@ -2,7 +2,7 @@
   min-height: 100dvh;
 }
 .main {
-  padding: var(--safe-top) var(--gutter) calc(var(--tabbar-h) + var(--safe-bottom) + 24px);
+  padding: var(--safe-top) var(--gutter) calc(var(--tabbar-h) + var(--safe-bottom) + 88px);
 }
 .content {
   max-width: var(--content-max);

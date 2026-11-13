@@ -166,7 +166,7 @@ export function DiaryView() {
 
 type Pickable = { kind: 'food' | 'recipe'; id: string; name: string; per100: Macros }
 
-function AddItemSheet({ date, slot, onClose }: { date: string; slot: string; onClose: () => void }) {
+export function AddItemSheet({ date, slot, onClose }: { date: string; slot: string; onClose: () => void }) {
   const maps = useNutritionMaps()
   const add = useAddMealItem()
   const toast = useToast()
